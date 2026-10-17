@@ -1,4 +1,6 @@
 import pandas as pd
+import joblib
+import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -88,7 +90,11 @@ model.fit(
 )
 
 print("Training complete!")
-
+MODEL_DIR="models"
+MODEL_FILE="models/url_XGboost_model.json"
+os.makedirs(MODEL_DIR,exist_ok=True)
+model.save_model(MODEL_FILE)
+print(f"Model Saved to: {MODEL_FILE}")
 
 # -----------------------------------
 # 6. Make predictions
