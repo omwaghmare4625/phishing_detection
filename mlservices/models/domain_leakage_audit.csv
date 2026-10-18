@@ -1,0 +1,8 @@
+metric,value
+usable_records,143472
+unique_hostnames,109181
+unique_registered_domains,84164
+training_records,112191
+test_records,31281
+registered_domain_overlap,557
+mixed_label_registered_domains,67
