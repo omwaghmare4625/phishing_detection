@@ -16,6 +16,7 @@ def test_health_endpoint():
     assert "popular_brands" in data
     assert "google" in data["popular_brands"]
     assert "paypal" in data["popular_brands"]
+    assert data.get("email_nlp_model_loaded") is True
 
 
 
@@ -52,6 +53,8 @@ def test_check_email_api():
     assert data["verdict"] == "phishing"
     assert data["threat_score"] >= 70.0
     assert len(data["reasons"]) > 0
+    assert "nlp_analysis" in data
+    assert data["nlp_analysis"]["model_loaded"] is True
 
 
 def test_check_urls_batch_api():

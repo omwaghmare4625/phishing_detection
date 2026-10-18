@@ -5,7 +5,11 @@ Analyzes sender spoofing, urgency/fear triggers in body text, and embedded links
 from __future__ import annotations
 
 import re
+from pathlib import Path
+from functools import lru_cache
 from urllib.parse import urlparse
+import joblib
+
 from backend.services.url_detector import detect_url_phishing
 from backend.services.heuristics import POPULAR_BRANDS, AUTHENTIC_BRAND_DOMAINS
 
@@ -13,6 +17,45 @@ FREE_EMAIL_PROVIDERS = {
     "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
     "aol.com", "icloud.com", "mail.com", "proton.me", "protonmail.com"
 }
+
+@lru_cache(maxsize=1)
+def load_email_nlp_model():
+    """Load the trained email NLP classifier pipeline."""
+    model_path = Path(__file__).resolve().parent.parent / "models" / "email_model.joblib"
+    if model_path.exists():
+        try:
+            return joblib.load(model_path)
+        except Exception:
+            return None
+    return None
+
+
+def predict_email_nlp(subject: str, body: str) -> dict[str, any]:
+    """Run NLP model to detect phishing probability in subject + body text."""
+    model = load_email_nlp_model()
+    combined_text = f"{subject} {body}".strip()
+    if not model or not combined_text:
+        return {
+            "model_loaded": model is not None,
+            "phishing_probability": 0.0,
+            "is_phishing_text": False
+        }
+
+    try:
+        proba = model.predict_proba([combined_text])[0][1]
+        pct = round(float(proba) * 100, 1)
+        return {
+            "model_loaded": True,
+            "phishing_probability": pct,
+            "is_phishing_text": pct >= 50.0
+        }
+    except Exception:
+        return {
+            "model_loaded": False,
+            "phishing_probability": 0.0,
+            "is_phishing_text": False
+        }
+
 
 URGENT_PHRASES = [
     "immediate action required",
@@ -108,10 +151,20 @@ def detect_email_phishing(
         threat_score += 45.0
         reasons.extend(sender_flags)
 
-    # 2. Inspect content urgency
+    # 2. Inspect content via AI NLP Model & Keyword Heuristics
+    nlp_report = predict_email_nlp(subject, body_text)
+    nlp_prob = nlp_report.get("phishing_probability", 0.0)
+
+    if nlp_prob >= 75.0:
+        threat_score += 45.0
+        reasons.append(f"AI NLP Classifier flagged high-confidence phishing language ({nlp_prob}%)")
+    elif nlp_prob >= 50.0:
+        threat_score += 25.0
+        reasons.append(f"AI NLP Classifier flagged social engineering / urgency patterns ({nlp_prob}%)")
+
     urgency_flags = check_body_urgency(subject, body_text)
     if urgency_flags:
-        threat_score += min(len(urgency_flags) * 20.0, 40.0)
+        threat_score += min(len(urgency_flags) * 15.0, 30.0)
         reasons.extend(urgency_flags)
 
     # 3. Inspect embedded links
@@ -162,5 +215,6 @@ def detect_email_phishing(
         "subject": subject,
         "reasons": reasons,
         "link_count": len(links),
-        "analyzed_links": link_results
+        "analyzed_links": link_results,
+        "nlp_analysis": nlp_report
     }

@@ -72,3 +72,42 @@ def test_google_service_email_not_spoofed():
     assert report["verdict"] == "safe"
     assert report["threat_score"] < 40.0
 
+
+def test_email_nlp_classifier_direct():
+    from backend.services.email_detector import predict_email_nlp, load_email_nlp_model
+    model = load_email_nlp_model()
+    assert model is not None
+
+    # Test phishing prompt
+    phish_res = predict_email_nlp(
+        subject="Urgent: Verify your password immediately",
+        body="Your account will be suspended within 24 hours. Click here to confirm credentials."
+    )
+    assert phish_res["model_loaded"] is True
+    assert phish_res["phishing_probability"] >= 50.0
+    assert phish_res["is_phishing_text"] is True
+
+    # Test benign prompt
+    benign_res = predict_email_nlp(
+        subject="Sprint 42 retrospective follow-up",
+        body="Thanks for participating in yesterday's retro. I updated the Jira board."
+    )
+    assert benign_res["model_loaded"] is True
+    assert benign_res["phishing_probability"] < 50.0
+    assert benign_res["is_phishing_text"] is False
+
+
+def test_email_nlp_in_detection_report():
+    report = detect_email_phishing(
+        sender_name="Security Alert",
+        sender_email="sec-alert@unknown-domain.xyz",
+        subject="Critical Security Alert: Unauthorized login attempt detected",
+        body_text="Someone attempted to log into your account. Review activity and verify your credentials now.",
+        links=[]
+    )
+    assert "nlp_analysis" in report
+    assert report["nlp_analysis"]["model_loaded"] is True
+    assert report["threat_score"] >= 40.0
+    assert any("NLP Classifier" in r for r in report["reasons"])
+
+

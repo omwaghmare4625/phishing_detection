@@ -18,17 +18,23 @@ if str(REPO_ROOT) not in sys.path:
 
 from backend.services.url_detector import detect_url_phishing, load_model
 from contextlib import asynccontextmanager
-from backend.services.email_detector import detect_email_phishing
+from backend.services.email_detector import detect_email_phishing, load_email_nlp_model
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-warm model into memory on startup."""
+    """Pre-warm models into memory on startup."""
     try:
         load_model()
         print("[Startup] XGBoost URL Phishing model loaded successfully.")
     except Exception as exc:
-        print(f"[Startup Warning] Could not preload model: {exc}")
+        print(f"[Startup Warning] Could not preload URL model: {exc}")
+
+    try:
+        load_email_nlp_model()
+        print("[Startup] Email Phishing NLP model loaded successfully.")
+    except Exception as exc:
+        print(f"[Startup Warning] Could not preload Email NLP model: {exc}")
     yield
 
 
@@ -91,16 +97,19 @@ class EmailCheckResponse(BaseModel):
     reasons: List[str]
     link_count: int
     analyzed_links: List[dict]
+    nlp_analysis: Optional[dict] = None
 
 
 @app.get("/api/health")
 def health_check():
     from backend.services.heuristics import POPULAR_BRANDS
+    from backend.services.email_detector import load_email_nlp_model
     return {
         "status": "healthy",
         "service": "phishing-shield-api",
         "version": "1.0.0",
-        "popular_brands": POPULAR_BRANDS
+        "popular_brands": POPULAR_BRANDS,
+        "email_nlp_model_loaded": load_email_nlp_model() is not None
     }
 
 
@@ -192,7 +201,8 @@ def check_email_endpoint(payload: EmailCheckRequest):
             risk_level=result["risk_level"],
             reasons=result["reasons"],
             link_count=result["link_count"],
-            analyzed_links=result["analyzed_links"]
+            analyzed_links=result["analyzed_links"],
+            nlp_analysis=result.get("nlp_analysis")
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Email analysis error: {str(exc)}")
