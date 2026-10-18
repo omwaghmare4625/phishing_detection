@@ -19,6 +19,19 @@ let activeDomain = "";
 let isWhitelistedState = false;
 let currentTabUrl = "";
 
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast-notification");
+  const msgElem = document.getElementById("toast-message");
+  if (!toast || !msgElem) return;
+
+  msgElem.textContent = message;
+  toast.className = `toast-notification ${type}`;
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => {
+    toast.className = "toast-notification hidden";
+  }, 2200);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
   checkBackendHealth();
@@ -178,7 +191,7 @@ function exportHistoryToCSV() {
   chrome.storage.local.get("phishguard_history", (data) => {
     const history = data.phishguard_history || [];
     if (history.length === 0) {
-      alert("No security events recorded yet.");
+      showToast("No security events recorded yet.", "error");
       return;
     }
 
@@ -208,6 +221,7 @@ function exportHistoryToCSV() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    showToast("Security event log exported to CSV.");
   });
 }
 
@@ -216,13 +230,7 @@ function setupSiteReporting() {
   if (reportBtn) {
     reportBtn.addEventListener("click", () => {
       if (!currentTabUrl) return;
-      const feedback = prompt(
-        `Submit classification feedback for:\n${currentTabUrl}\n\nEnter 'fp' if safe site blocked incorrectly, or 'fn' if phishing missed:`,
-        "fp"
-      );
-      if (feedback) {
-        alert("Thank you. Security feedback recorded for domain triage.");
-      }
+      showToast("Feedback submitted. Thank you for reporting!");
     });
   }
 }
@@ -264,6 +272,7 @@ function renderWhitelistList(whitelist) {
         if (res && res.list) {
           renderWhitelistList(res.list);
           if (activeDomain === domain) updateWhitelistUI(false);
+          showToast(`Removed ${domain} from allowlist`);
         }
       });
     });
@@ -289,6 +298,7 @@ function setupWhitelistView() {
       if (res && res.list) {
         renderWhitelistList(res.list);
         if (activeDomain === domain) updateWhitelistUI(true);
+        showToast(`Added ${domain} to allowlist`);
       }
     });
   }
@@ -311,6 +321,7 @@ function setupSettingsView() {
         chrome.runtime.sendMessage({ type: "SET_PROTECTION_LEVEL", level }, () => {
           const statMode = document.getElementById("stat-mode");
           if (statMode) statMode.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+          showToast(`Policy set to ${level.toUpperCase()}`);
         });
       }
     });
@@ -324,10 +335,7 @@ function setupSettingsView() {
       if (cacheKeys.length > 0) {
         await chrome.storage.local.remove(cacheKeys);
       }
-      purgeBtn.innerHTML = `<span>Purged ${cacheKeys.length} items</span>`;
-      setTimeout(() => {
-        purgeBtn.innerHTML = `<span>Purge Cache</span>`;
-      }, 2000);
+      showToast(`Purged ${cacheKeys.length} cached items`);
     });
   }
 
@@ -339,10 +347,7 @@ function setupSettingsView() {
       chrome.runtime.sendMessage({ type: "SET_API_BASE", apiBase: newBase }, (res) => {
         if (res && res.apiBase) {
           apiInput.value = res.apiBase;
-          saveApiBtn.innerHTML = `<span>Saved!</span>`;
-          setTimeout(() => {
-            saveApiBtn.innerHTML = `<span>Save</span>`;
-          }, 1500);
+          showToast("Backend API endpoint saved");
           checkBackendHealth();
         }
       });

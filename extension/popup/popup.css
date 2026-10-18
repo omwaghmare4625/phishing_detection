@@ -864,6 +864,23 @@ body {
   gap: 12px;
 }
 
+.settings-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input-action-row .clean-input {
+  flex: 1;
+  padding: 8px 12px;
+}
+
 .action-card-text {
   display: flex;
   flex-direction: column;
@@ -932,6 +949,44 @@ body {
   color: #fbbf24;
 }
 
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.toast-notification.hidden {
+  opacity: 0;
+  transform: translate(-50%, 12px);
+}
+
+.toast-notification.success {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.toast-notification.error {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
@@ -976,7 +1031,7 @@ body {
   cursor: pointer;
   padding: 4px 6px;
   border-radius: var(--radius-sm);
-  transition: all var(--duration-fast) var(--ease-standard);
+  transition: all var(--transition-fast);
 }
 
 .ghost-feedback-btn:hover {

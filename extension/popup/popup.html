@@ -32,22 +32,6 @@
       </div>
     </header>
 
-    <!-- Protection Summary Strip -->
-    <section class="telemetry-bar">
-      <div class="telemetry-cell">
-        <span class="telemetry-number" id="stat-scans">0</span>
-        <span class="telemetry-caption">Sites Checked</span>
-      </div>
-      <div class="telemetry-cell">
-        <span class="telemetry-number text-danger" id="stat-blocked">0</span>
-        <span class="telemetry-caption">Threats Blocked</span>
-      </div>
-      <div class="telemetry-cell">
-        <span class="telemetry-number text-accent" id="stat-mode">Balanced</span>
-        <span class="telemetry-caption">Policy Mode</span>
-      </div>
-    </section>
-
     <!-- Navigation Bar -->
     <nav class="nav-segment" role="tablist">
       <button class="nav-tab active" data-tab="active-tab-view" id="tab-active" role="tab" aria-selected="true">
@@ -199,6 +183,22 @@
 
     <!-- Tab 3: History Log -->
     <section class="tab-pane" id="history-view" role="tabpanel">
+      <!-- Session Telemetry Summary -->
+      <div class="telemetry-bar">
+        <div class="telemetry-cell">
+          <span class="telemetry-number" id="stat-scans">0</span>
+          <span class="telemetry-caption">Sites Checked</span>
+        </div>
+        <div class="telemetry-cell">
+          <span class="telemetry-number text-danger" id="stat-blocked">0</span>
+          <span class="telemetry-caption">Threats Blocked</span>
+        </div>
+        <div class="telemetry-cell">
+          <span class="telemetry-number text-accent" id="stat-mode">Balanced</span>
+          <span class="telemetry-caption">Policy Mode</span>
+        </div>
+      </div>
+
       <div class="section-title-row">
         <h2 class="section-title">SECURITY EVENT LOG</h2>
         <div class="history-actions-group">
@@ -285,12 +285,12 @@
         </label>
       </div>
 
-      <div class="card settings-action-card">
+      <div class="card settings-form-card">
         <div class="action-card-text">
           <span class="action-card-title">Backend API Server</span>
-          <span class="action-card-desc">Configure detection endpoint URL.</span>
+          <span class="action-card-desc">Detection endpoint URL for heuristic & ML models</span>
         </div>
-        <div class="input-control-group" style="margin-top: 8px;">
+        <div class="input-action-row">
           <input
             type="text"
             id="api-base-input"
@@ -307,7 +307,7 @@
       <div class="card settings-action-card">
         <div class="action-card-text">
           <span class="action-card-title">Local Threat Cache</span>
-          <span class="action-card-desc">Clear cached domain verdicts to force real-time re-evaluation.</span>
+          <span class="action-card-desc">Purge cached verdicts to force real-time re-evaluation</span>
         </div>
         <button class="secondary-btn" id="purge-cache-btn">
           <span>Purge Cache</span>
@@ -319,13 +319,18 @@
     <footer class="app-footer">
       <div class="footer-telemetry">
         <span class="telemetry-label">Engine:</span>
-        <span class="telemetry-val" id="engine-status">Heuristics + ML v1.3</span>
+        <span class="telemetry-val" id="engine-status">Heuristics + ML v1.4</span>
       </div>
       <div class="footer-telemetry">
         <span class="telemetry-label">Service:</span>
         <span class="telemetry-val status-online" id="backend-status">Connected</span>
       </div>
     </footer>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-notification" class="toast-notification hidden" role="status" aria-live="polite">
+      <span class="toast-message" id="toast-message"></span>
+    </div>
   </div>
 
   <script src="popup.js"></script>
