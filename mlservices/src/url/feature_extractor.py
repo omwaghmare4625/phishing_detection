@@ -28,8 +28,13 @@ def extract_features(url):
     Extract numerical features from a URL.
     """
 
-    # Parse URL
-    parsed = urlparse(url)
+    raw_url = url.strip()
+    if not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", raw_url):
+        parse_target = "http://" + raw_url
+    else:
+        parse_target = raw_url
+
+    parsed = urlparse(parse_target)
 
     hostname = parsed.hostname or ""
     path = parsed.path or ""
@@ -74,7 +79,7 @@ def extract_features(url):
     # HTTPS
     # -----------------------------------
 
-    has_https = int(parsed.scheme.lower() == "https")
+    has_https = int(raw_url.lower().startswith("https://"))
 
     # -----------------------------------
     # IP address detection

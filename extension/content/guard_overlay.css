@@ -1,0 +1,423 @@
+/* PhishGuard Security - In-Page Overlay & Enterprise Alerts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --pg-bg-backdrop: rgba(11, 15, 25, 0.96);
+  --pg-card-bg: #111827;
+  --pg-card-subtle: #162032;
+  --pg-border: rgba(255, 255, 255, 0.1);
+  --pg-border-danger: rgba(239, 68, 68, 0.35);
+  --pg-border-warning: rgba(245, 158, 11, 0.35);
+
+  --pg-danger: #ef4444;
+  --pg-danger-surface: rgba(239, 68, 68, 0.1);
+  --pg-warning: #f59e0b;
+  --pg-warning-surface: rgba(245, 158, 11, 0.1);
+  --pg-success: #10b981;
+  --pg-success-surface: rgba(16, 185, 129, 0.1);
+
+  --pg-text-primary: #f8fafc;
+  --pg-text-secondary: #94a3b8;
+  --pg-text-tertiary: #64748b;
+
+  --pg-radius: 12px;
+}
+
+/* 1. Fullscreen Phishing Intercept Overlay */
+#phishguard-block-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  background-color: var(--pg-bg-backdrop) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  box-sizing: border-box !important;
+  backdrop-filter: blur(12px) !important;
+  animation: pgFadeIn 0.2s ease-out !important;
+}
+
+@keyframes pgFadeIn {
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pg-block-card {
+  max-width: 580px;
+  width: 90%;
+  background: var(--pg-card-bg);
+  border: 1px solid var(--pg-border-danger);
+  border-top: 4px solid var(--pg-danger);
+  border-radius: var(--pg-radius);
+  padding: 32px 28px;
+  color: var(--pg-text-primary);
+  box-sizing: border-box;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+}
+
+.pg-block-header-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.pg-block-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--pg-danger-surface);
+  border: 1px solid var(--pg-border-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.pg-block-title-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.pg-block-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.pg-block-domain-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #fca5a5;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.pg-block-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--pg-text-secondary);
+  margin-bottom: 20px;
+}
+
+.pg-reasons-box {
+  background: var(--pg-card-subtle);
+  border: 1px solid var(--pg-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.pg-reasons-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #f87171;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pg-reasons-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #e2e8f0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.pg-reasons-list li {
+  margin-bottom: 4px;
+}
+
+.pg-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pg-btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.pg-btn-primary {
+  background: #ffffff;
+  color: #0b0f19;
+}
+
+.pg-btn-primary:hover {
+  background: #e2e8f0;
+}
+
+.pg-btn-secondary {
+  background: var(--pg-card-subtle);
+  color: var(--pg-text-secondary);
+  border: 1px solid var(--pg-border);
+}
+
+.pg-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.pg-btn-link {
+  background: transparent;
+  color: var(--pg-text-tertiary);
+  font-size: 12px;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pg-btn-link:hover {
+  color: var(--pg-text-secondary);
+}
+
+/* 2. Docked Alert Banner for Suspicious Sites */
+#phishguard-top-banner {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 2147483646 !important;
+  background: #111827 !important;
+  border-bottom: 2px solid var(--pg-warning) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  padding: 10px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  color: #fff !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  box-sizing: border-box !important;
+  animation: pgSlideDown 0.25s ease-out !important;
+}
+
+@keyframes pgSlideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.pg-banner-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex: 1 !important;
+}
+
+.pg-banner-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: var(--pg-warning-surface) !important;
+  border: 1px solid var(--pg-border-warning) !important;
+  color: #fbbf24 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  text-transform: uppercase !important;
+  flex-shrink: 0 !important;
+}
+
+.pg-banner-text {
+  font-size: 13px !important;
+  color: #e2e8f0 !important;
+  line-height: 1.4 !important;
+}
+
+.pg-banner-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+.pg-banner-action-btn {
+  background: var(--pg-card-subtle) !important;
+  border: 1px solid var(--pg-border) !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 5px 12px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.pg-banner-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.pg-banner-close {
+  background: transparent !important;
+  border: none !important;
+  color: var(--pg-text-tertiary) !important;
+  cursor: pointer !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: color 0.15s ease !important;
+}
+
+.pg-banner-close:hover {
+  color: #fff !important;
+}
+
+/* 3. Gmail Header Security Bar */
+.phishguard-email-card {
+  margin: 10px 0 14px 0 !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+  animation: pgFadeIn 0.2s ease-out !important;
+  background: #111827 !important;
+  border: 1px solid var(--pg-border) !important;
+}
+
+.phishguard-email-card.pg-phishing {
+  border-left: 4px solid var(--pg-danger) !important;
+  border-color: var(--pg-border-danger) !important;
+}
+
+.phishguard-email-card.pg-suspicious {
+  border-left: 4px solid var(--pg-warning) !important;
+  border-color: var(--pg-border-warning) !important;
+}
+
+.phishguard-email-card.pg-safe {
+  border-left: 4px solid var(--pg-success) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.pg-email-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  margin-bottom: 6px !important;
+}
+
+.pg-phishing .pg-email-badge { color: #f87171 !important; }
+.pg-suspicious .pg-email-badge { color: #fbbf24 !important; }
+.pg-safe .pg-email-badge { color: #34d399 !important; }
+
+.pg-email-score-tag {
+  margin-left: auto !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  color: var(--pg-text-secondary) !important;
+}
+
+.pg-email-details {
+  font-size: 12.5px !important;
+  color: var(--pg-text-secondary) !important;
+  line-height: 1.5 !important;
+}
+
+.pg-email-details ul {
+  margin: 6px 0 0 16px !important;
+  padding: 0 !important;
+  color: #e2e8f0 !important;
+}
+
+.pg-email-details li {
+  margin-bottom: 3px !important;
+}
+
+/* 4. Disguised Link Tooltip */
+.phishguard-link-tooltip {
+  position: absolute !important;
+  z-index: 2147483646 !important;
+  max-width: 320px !important;
+  background: #111827 !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color: var(--pg-text-primary) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
+  pointer-events: none !important;
+  border: 1px solid var(--pg-border-danger) !important;
+  animation: pgFadeIn 0.15s ease-out !important;
+}
+
+.phishguard-link-tooltip.hidden {
+  display: none !important;
+}
+
+.phishguard-link-tooltip.pg-tip-warning {
+  border-color: var(--pg-border-warning) !important;
+}
+
+.pg-tip-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  margin-bottom: 4px !important;
+  color: #f87171 !important;
+}
+
+.pg-tip-warning .pg-tip-header {
+  color: #fbbf24 !important;
+}
+
+.pg-tip-body {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 6px !important;
+}
+
+.pg-tip-dest {
+  font-size: 11px !important;
+  color: var(--pg-text-tertiary) !important;
+  border-top: 1px solid var(--pg-border) !important;
+  padding-top: 4px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.pg-tip-dest span {
+  color: #93c5fd !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}

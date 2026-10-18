@@ -1,3 +1,5 @@
+from pathlib import Path
+import joblib
 import pandas as pd
 import joblib
 import os
@@ -11,17 +13,21 @@ from sklearn.metrics import (
     classification_report,
     confusion_matrix
 )
-
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier  # type: ignore
 
 
 # -----------------------------------
 # 1. Load feature dataset
 # -----------------------------------
 
-DATASET_FILE = "datasets/processed/url_features.csv"
+BASE_DIR = Path(__file__).resolve().parents[2]  # mlservices directory
+DATASET_FILE = BASE_DIR / "datasets" / "processed" / "url_features.csv"
+REPO_ROOT = BASE_DIR.parent
+MODEL_OUTPUT_DIR = REPO_ROOT / "backend" / "models"
+MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+MODEL_FILE = MODEL_OUTPUT_DIR / "url_model.joblib"
 
-print("Loading dataset...")
+print(f"Loading dataset from: {DATASET_FILE}")
 
 df = pd.read_csv(DATASET_FILE)
 
@@ -173,3 +179,17 @@ cm = confusion_matrix(
 )
 
 print(cm)
+
+# -----------------------------------
+# 11. Save trained model & feature names
+# -----------------------------------
+
+print(f"\nSaving model artifact to: {MODEL_FILE}")
+joblib.dump(
+    {
+        "model": model,
+        "features": list(X.columns)
+    },
+    MODEL_FILE
+)
+print("Model saved successfully!")

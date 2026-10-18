@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishGuard Security</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-symbol" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-identity">
+          <h1 class="brand-name">PhishGuard</h1>
+          <span class="brand-edition">Security Shield</span>
+        </div>
+      </div>
+
+      <div class="status-indicator status-active" id="live-status-pill">
+        <span class="status-dot"></span>
+        <span class="status-label">PROTECTED</span>
+      </div>
+    </header>
+
+    <!-- Protection Summary Strip -->
+    <section class="telemetry-bar">
+      <div class="telemetry-cell">
+        <span class="telemetry-number" id="stat-scans">0</span>
+        <span class="telemetry-caption">Sites Checked</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="telemetry-number text-danger" id="stat-blocked">0</span>
+        <span class="telemetry-caption">Threats Blocked</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="telemetry-number text-accent" id="stat-mode">Balanced</span>
+        <span class="telemetry-caption">Policy Mode</span>
+      </div>
+    </section>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-segment" role="tablist">
+      <button class="nav-tab active" data-tab="active-tab-view" id="tab-active" role="tab" aria-selected="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <span>Shield</span>
+      </button>
+      <button class="nav-tab" data-tab="quick-scan-view" id="tab-scan" role="tab" aria-selected="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span>Scan</span>
+      </button>
+      <button class="nav-tab" data-tab="history-view" id="tab-history" role="tab" aria-selected="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Logs</span>
+      </button>
+      <button class="nav-tab" data-tab="whitelist-view" id="tab-whitelist" role="tab" aria-selected="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Allowlist</span>
+      </button>
+      <button class="nav-tab" data-tab="settings-view" id="tab-settings" role="tab" aria-selected="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Policy</span>
+      </button>
+    </nav>
+
+    <!-- Tab 1: Active Site Status -->
+    <main class="tab-pane active" id="active-tab-view" role="tabpanel">
+      <!-- Site Identification Card -->
+      <section class="card site-overview-card">
+        <div class="site-header-row">
+          <div class="site-protocol-badge" id="protocol-badge">
+            <svg class="protocol-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span class="protocol-text">SECURE</span>
+          </div>
+          <button class="whitelist-toggle-btn" id="whitelist-toggle-btn" title="Add or remove site from trusted allowlist">
+            <span id="whitelist-icon" class="whitelist-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
+            <span id="whitelist-label">Trust Domain</span>
+          </button>
+        </div>
+
+        <div class="site-domain-row">
+          <div class="active-url" id="active-domain" title="Current tab domain">Evaluating domain...</div>
+        </div>
+
+        <div class="threat-meter-box">
+          <div class="meter-radial">
+            <svg class="meter-svg" viewBox="0 0 100 100">
+              <circle class="meter-bg" cx="50" cy="50" r="42" />
+              <circle class="meter-value" id="gauge-bar" cx="50" cy="50" r="42" />
+            </svg>
+            <div class="meter-content">
+              <span class="meter-number" id="active-score">--</span>
+              <span class="meter-unit">/100</span>
+            </div>
+          </div>
+          <div class="meter-summary">
+            <div class="verdict-tag" id="active-verdict-badge">INSPECTING</div>
+            <p class="verdict-description" id="active-verdict-desc">Analyzing domain structure, certificates, and content signals.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Signals Section -->
+      <section class="signals-section">
+        <div class="section-title-row">
+          <h2 class="section-title">INSPECTION SIGNALS</h2>
+          <span class="section-subtitle">Real-Time Telemetry</span>
+        </div>
+        <div class="signals-card" id="reasons-container">
+          <div class="empty-state">Evaluating active connection signals...</div>
+        </div>
+        <div class="site-feedback-row">
+          <button class="ghost-feedback-btn" id="report-site-btn" title="Flag misclassification or report missed phishing">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Report False Alarm / Threat</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Tab 2: URL Scanner -->
+    <section class="tab-pane" id="quick-scan-view" role="tabpanel">
+      <div class="card scanner-card">
+        <div class="scanner-header">
+          <label for="manual-input" class="scanner-label">Inspect Any Web Address</label>
+          <span class="scanner-hint">Paste full URL or bare domain</span>
+        </div>
+        
+        <div class="input-control-group">
+          <div class="input-prefix-icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="manual-input"
+            class="clean-input"
+            placeholder="e.g. https://secure-login.portal.com/auth"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <button id="manual-paste-btn" class="input-action-btn" title="Paste from clipboard">
+            Paste
+          </button>
+        </div>
+
+        <button id="manual-scan-btn" class="primary-action-btn">
+          <span>Run Security Inspection</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="scan-result-card hidden" id="scan-result">
+        <div class="result-header-row">
+          <span class="verdict-tag" id="manual-verdict-badge">SAFE</span>
+          <span class="result-score-chip" id="manual-score">Score: 0/100</span>
+        </div>
+        <div class="result-reasons-list" id="manual-reasons"></div>
+      </div>
+    </section>
+
+    <!-- Tab 3: History Log -->
+    <section class="tab-pane" id="history-view" role="tabpanel">
+      <div class="section-title-row">
+        <h2 class="section-title">SECURITY EVENT LOG</h2>
+        <div class="history-actions-group">
+          <button class="secondary-btn compact-btn" id="export-history-btn" title="Export scan history to CSV file">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Export CSV</span>
+          </button>
+          <button class="ghost-btn-danger" id="clear-history-btn">Clear</button>
+        </div>
+      </div>
+      <div class="history-list-container" id="history-list">
+        <div class="empty-state">No recent scan activity recorded.</div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Allowlist Manager -->
+    <section class="tab-pane" id="whitelist-view" role="tabpanel">
+      <div class="section-title-row">
+        <h2 class="section-title">TRUSTED DOMAINS</h2>
+        <span class="count-pill" id="whitelist-count">0</span>
+      </div>
+      <p class="section-explanation">Domains on your allowlist are trusted and will bypass automated blocking barriers.</p>
+      
+      <div class="inline-add-row">
+        <input
+          type="text"
+          id="new-whitelist-input"
+          class="clean-input"
+          placeholder="e.g. internal.corp.net"
+          spellcheck="false"
+        />
+        <button id="add-whitelist-btn" class="primary-action-btn compact-btn">
+          <span>Add Domain</span>
+        </button>
+      </div>
+
+      <div class="whitelist-container" id="whitelist-list">
+        <div class="empty-state">No domains currently whitelisted.</div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Settings / Policy -->
+    <section class="tab-pane" id="settings-view" role="tabpanel">
+      <div class="section-title-row">
+        <h2 class="section-title">PROTECTION SENSITIVITY</h2>
+      </div>
+
+      <div class="policy-radio-group">
+        <label class="policy-option-card">
+          <input type="radio" name="protection-level" value="aggressive" id="radio-aggressive">
+          <div class="policy-card-body">
+            <div class="policy-title-row">
+              <span class="policy-name">High Strictness</span>
+              <span class="policy-threshold">Threshold &ge; 50</span>
+            </div>
+            <p class="policy-desc">Flags all early warning indicators and potential brand impersonations. Recommended for high-risk workstations.</p>
+          </div>
+        </label>
+
+        <label class="policy-option-card">
+          <input type="radio" name="protection-level" value="balanced" id="radio-balanced" checked>
+          <div class="policy-card-body">
+            <div class="policy-title-row">
+              <span class="policy-name">Standard Protection</span>
+              <span class="policy-threshold badge-recommended">Recommended</span>
+            </div>
+            <p class="policy-desc">Blocks high-confidence threats (&ge; 70) and warns on suspicious indicators (&ge; 40). Balanced security with minimal disruption.</p>
+          </div>
+        </label>
+
+        <label class="policy-option-card">
+          <input type="radio" name="protection-level" value="permissive" id="radio-permissive">
+          <div class="policy-card-body">
+            <div class="policy-title-row">
+              <span class="policy-name">Permissive</span>
+              <span class="policy-threshold">Threshold &ge; 85</span>
+            </div>
+            <p class="policy-desc">Restricts blocking strictly to verified malicious domains and severe typosquats. Non-intrusive mode.</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="card settings-action-card">
+        <div class="action-card-text">
+          <span class="action-card-title">Backend API Server</span>
+          <span class="action-card-desc">Configure detection endpoint URL.</span>
+        </div>
+        <div class="input-control-group" style="margin-top: 8px;">
+          <input
+            type="text"
+            id="api-base-input"
+            class="clean-input"
+            placeholder="http://127.0.0.1:8000"
+            spellcheck="false"
+          />
+          <button id="save-api-base-btn" class="primary-action-btn compact-btn">
+            <span>Save</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card settings-action-card">
+        <div class="action-card-text">
+          <span class="action-card-title">Local Threat Cache</span>
+          <span class="action-card-desc">Clear cached domain verdicts to force real-time re-evaluation.</span>
+        </div>
+        <button class="secondary-btn" id="purge-cache-btn">
+          <span>Purge Cache</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- System Status Footer -->
+    <footer class="app-footer">
+      <div class="footer-telemetry">
+        <span class="telemetry-label">Engine:</span>
+        <span class="telemetry-val" id="engine-status">Heuristics + ML v1.3</span>
+      </div>
+      <div class="footer-telemetry">
+        <span class="telemetry-label">Service:</span>
+        <span class="telemetry-val status-online" id="backend-status">Connected</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
