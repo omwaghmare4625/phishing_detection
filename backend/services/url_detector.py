@@ -118,6 +118,90 @@ def unwrap_redirect_wrapper(raw_url: str) -> str:
     return raw_url
 
 
+def calculate_bayesian_threat_score(
+    ml_prob: float,
+    penalty_score: float,
+    is_trusted_domain: bool,
+    has_suspicious_keywords: bool
+) -> tuple[float, dict[str, any]]:
+    """
+    Bayesian and Adaptive Evidence Fusion engine for phishing threat scoring.
+    Combines domain prior beliefs, ML likelihood, and structural attack indicators.
+    """
+    ml_score = round(ml_prob * 100.0, 1)
+
+    if is_trusted_domain:
+        breakdown = {
+            "engine": "bayesian_adaptive",
+            "domain_trust": "verified_top_domain",
+            "base_prior_probability": 0.005,
+            "ml_score": ml_score,
+            "heuristic_penalty": 0.0,
+            "weight_ml": 0.10,
+            "weight_heuristic": 0.90,
+            "final_threat_score": 0.0
+        }
+        return 0.0, breakdown
+
+    # 1. Base Prior Odds P0 based on heuristic severity
+    if penalty_score >= 50.0:
+        base_prior = 0.65
+        w_heur = 0.80
+        w_ml = 0.20
+    elif penalty_score >= 25.0 or has_suspicious_keywords:
+        base_prior = 0.35
+        w_heur = 0.60
+        w_ml = 0.40
+    else:
+        base_prior = 0.12
+        w_heur = 0.50
+        w_ml = 0.50
+
+    prior_odds = base_prior / (1.0 - base_prior)
+
+    # 2. ML Likelihood Ratio
+    clamped_ml = min(max(ml_prob, 0.02), 0.98)
+    l_ml = clamped_ml / (1.0 - clamped_ml)
+
+    # 3. Heuristic Likelihood Ratio
+    if penalty_score >= 50.0:
+        l_heur = 12.0
+    elif penalty_score >= 35.0:
+        l_heur = 6.0
+    elif penalty_score >= 20.0:
+        l_heur = 3.0
+    elif has_suspicious_keywords:
+        l_heur = 2.0
+    else:
+        l_heur = 0.25
+
+    # 4. Bayesian Posterior Odds & Probability
+    posterior_odds = prior_odds * (l_ml ** w_ml) * (l_heur ** w_heur)
+    posterior_prob = posterior_odds / (1.0 + posterior_odds)
+    score = posterior_prob * 100.0
+
+    # 5. Guardrails & Safety Caps
+    if penalty_score >= 50.0:
+        score = max(score, 75.0, penalty_score)
+    elif penalty_score == 0.0 and not has_suspicious_keywords:
+        score = min(score, 25.0)
+
+    final_score = round(min(max(score, 0.0), 100.0), 1)
+
+    breakdown = {
+        "engine": "bayesian_adaptive",
+        "domain_trust": "unverified",
+        "base_prior_probability": round(base_prior, 2),
+        "ml_score": ml_score,
+        "heuristic_penalty": penalty_score,
+        "weight_ml": round(w_ml, 2),
+        "weight_heuristic": round(w_heur, 2),
+        "final_threat_score": final_score
+    }
+
+    return final_score, breakdown
+
+
 def detect_url_phishing(url: str) -> dict[str, any]:
     """
     Analyze a URL and return threat score (0-100), verdict, and explanation flags.
@@ -139,7 +223,6 @@ def detect_url_phishing(url: str) -> dict[str, any]:
     probabilities = model.predict_proba(input_data)[0]
     # Class 1 is phishing, Class 0 is legitimate
     ml_phishing_prob = float(probabilities[1])
-    ml_score = round(ml_phishing_prob * 100.0, 1)
 
     # 3. Heuristic evaluation on target URL
     heuristics = evaluate_heuristics(target_url)
@@ -163,25 +246,17 @@ def detect_url_phishing(url: str) -> dict[str, any]:
     if features.get("url_length", 0) > 120 and not heuristics.get("is_trusted_domain"):
         flags.append(f"Abnormally long URL ({features['url_length']} characters)")
 
-    # 5. Composite score calculation
-    if heuristics.get("is_trusted_domain"):
-        composite_score = 0.0
-        ml_phishing_prob = 0.0
+    # 5. Bayesian & Dynamic Score Calculation
+    is_trusted = bool(heuristics.get("is_trusted_domain"))
+    if is_trusted:
         flags.append("Verified high-reputation domain")
-    elif penalty_score >= 40.0:
-        # High heuristic penalty indicates corroborated threat signals (e.g. typosquatting, raw IP, new domain)
-        composite_score = max(ml_score, penalty_score)
-    elif penalty_score > 0.0 or has_suspicious_keywords:
-        # Moderate risk indicators present
-        composite_score = (0.50 * ml_score) + (0.50 * penalty_score)
-        if has_suspicious_keywords and composite_score < 40.0:
-            composite_score = 40.0
-    else:
-        # Zero heuristic penalties and zero suspicious keywords detected.
-        # Cap uncorroborated ML score to prevent false alarms on benign URLs with paths/queries.
-        composite_score = min(ml_score * 0.25, 25.0)
 
-    composite_score = round(min(max(composite_score, 0.0), 100.0), 1)
+    composite_score, scoring_breakdown = calculate_bayesian_threat_score(
+        ml_prob=ml_phishing_prob,
+        penalty_score=penalty_score,
+        is_trusted_domain=is_trusted,
+        has_suspicious_keywords=has_suspicious_keywords
+    )
 
     # 6. Final verdict
     if composite_score >= 70.0:
@@ -203,6 +278,7 @@ def detect_url_phishing(url: str) -> dict[str, any]:
         "risk_level": risk_level,
         "ml_probability": ml_phishing_prob,
         "reasons": flags,
-        "features": features
+        "features": features,
+        "scoring_breakdown": scoring_breakdown
     }
 

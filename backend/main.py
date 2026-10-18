@@ -69,6 +69,7 @@ class UrlCheckResponse(BaseModel):
     risk_level: str
     ml_probability: float
     reasons: List[str]
+    scoring_breakdown: Optional[dict] = None
 
 
 class BatchUrlCheckRequest(BaseModel):
@@ -127,7 +128,8 @@ def check_url_endpoint(payload: UrlCheckRequest):
             verdict=result["verdict"],
             risk_level=result["risk_level"],
             ml_probability=result["ml_probability"],
-            reasons=result["reasons"]
+            reasons=result["reasons"],
+            scoring_breakdown=result.get("scoring_breakdown")
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Analysis error: {str(exc)}")
@@ -158,7 +160,8 @@ def check_urls_batch_endpoint(payload: BatchUrlCheckRequest):
                 verdict=res["verdict"],
                 risk_level=res["risk_level"],
                 ml_probability=res["ml_probability"],
-                reasons=res["reasons"]
+                reasons=res["reasons"],
+                scoring_breakdown=res.get("scoring_breakdown")
             )
         except Exception:
             return UrlCheckResponse(

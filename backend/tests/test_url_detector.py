@@ -85,4 +85,37 @@ def test_unwrap_google_redirect():
     assert report["verdict"] == "phishing"
 
 
+def test_bayesian_threat_scoring_engine():
+    from backend.services.url_detector import calculate_bayesian_threat_score
+
+    # Trusted domain case
+    score_trusted, b_trusted = calculate_bayesian_threat_score(
+        ml_prob=0.99, penalty_score=0.0, is_trusted_domain=True, has_suspicious_keywords=False
+    )
+    assert score_trusted == 0.0
+    assert b_trusted["engine"] == "bayesian_adaptive"
+    assert b_trusted["domain_trust"] == "verified_top_domain"
+
+    # Severe typosquatting attack
+    score_severe, b_severe = calculate_bayesian_threat_score(
+        ml_prob=0.85, penalty_score=55.0, is_trusted_domain=False, has_suspicious_keywords=True
+    )
+    assert score_severe >= 75.0
+    assert b_severe["weight_heuristic"] == 0.80
+
+    # Clean unknown URL with zero heuristic flags
+    score_clean, b_clean = calculate_bayesian_threat_score(
+        ml_prob=0.70, penalty_score=0.0, is_trusted_domain=False, has_suspicious_keywords=False
+    )
+    assert score_clean <= 25.0
+
+
+def test_scoring_breakdown_in_detect_url():
+    report = detect_url_phishing("https://google.com")
+    assert "scoring_breakdown" in report
+    assert report["scoring_breakdown"]["engine"] == "bayesian_adaptive"
+    assert report["scoring_breakdown"]["final_threat_score"] == 0.0
+
+
+
 
