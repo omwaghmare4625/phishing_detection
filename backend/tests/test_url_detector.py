@@ -117,5 +117,12 @@ def test_scoring_breakdown_in_detect_url():
     assert report["scoring_breakdown"]["final_threat_score"] == 0.0
 
 
+def test_multi_tenant_subdomain_phishing():
+    report = detect_url_phishing("http://www.meridian-x.pages.dev/")
+    assert report["threat_score"] >= 70.0
+    assert report["verdict"] == "phishing"
+    assert any("pages.dev" in r for r in report["reasons"])
+
+
 
 

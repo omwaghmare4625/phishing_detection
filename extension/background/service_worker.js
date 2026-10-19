@@ -1,5 +1,5 @@
 /**
- * PhishGuard AI - Background Service Worker (v1.1)
+ * PhishGuard Security - Background Service Worker
  * Features:
  * - Persistent chrome.storage.local caching with 1-hour TTL
  * - Deep offline fallback heuristic engine
@@ -407,9 +407,24 @@ function updateBadge(tabId, verdict, score) {
   }
 }
 
+async function isProtectionEnabled() {
+  try {
+    const data = await chrome.storage.local.get("phishguard_protection_enabled");
+    return data.phishguard_protection_enabled !== false;
+  } catch (_) {
+    return true;
+  }
+}
+
 // Navigation monitor
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "loading" && tab.url) {
+    const enabled = await isProtectionEnabled();
+    if (!enabled) {
+      chrome.action.setBadgeText({ tabId, text: "" });
+      return;
+    }
+
     const report = await checkUrl(tab.url);
     updateBadge(tabId, report.verdict, report.threat_score);
 
@@ -458,7 +473,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Create context menu for scanning links
   chrome.contextMenus.create({
     id: "phishguard-scan-link",
-    title: "Scan Link with PhishGuard",
+    title: "Scan link with PhishGuard AI",
     contexts: ["link"]
   });
 });
@@ -508,13 +523,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(message.payload)
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`API response error ${res.status}`);
+          }
+          return res.json();
+        })
         .then((report) => {
           // Record email scan stats
           chrome.storage.local.get("phishguard_stats", (data) => {
             const stats = data.phishguard_stats || { totalScans: 0, threatsNeutralized: 0 };
             stats.totalScans = (stats.totalScans || 0) + 1;
-            if (report.verdict !== "safe") {
+            if (report && report.verdict && report.verdict !== "safe") {
               stats.threatsNeutralized = (stats.threatsNeutralized || 0) + 1;
             }
             chrome.storage.local.set({ phishguard_stats: stats });
@@ -608,6 +628,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     isHostWhitelisted(message.domain).then((whitelisted) => {
       sendResponse({ whitelisted });
     });
+    return true;
+  }
+
+  if (message.type === "PURGE_CACHE") {
+    if (message.url) {
+      const urlKey = message.url;
+      memoryCache.delete(urlKey);
+      const storageKey = `pg_cache_${encodeURIComponent(urlKey)}`;
+      chrome.storage.local.remove([storageKey], () => {
+        sendResponse({ success: true, count: 1 });
+      });
+    } else {
+      memoryCache.clear();
+      chrome.storage.local.get(null, (items) => {
+        const keysToRemove = Object.keys(items || {}).filter(
+          (k) => k.startsWith("pg_cache_") || k.startsWith("tab_") || k.startsWith("cache_")
+        );
+        chrome.storage.local.remove(keysToRemove, () => {
+          sendResponse({ success: true, count: keysToRemove.length });
+        });
+      });
+    }
     return true;
   }
 });

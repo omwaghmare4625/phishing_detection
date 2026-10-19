@@ -111,3 +111,122 @@ def test_email_nlp_in_detection_report():
     assert any("NLP Classifier" in r for r in report["reasons"])
 
 
+def test_financial_lure_and_multi_tenant_link():
+    report = detect_email_phishing(
+        sender_name="Promo Bot",
+        sender_email="promo@unknown-service.com",
+        subject="Check this out!",
+        body_text="Yo This link gives u free money check it out http://www.meridian-x.pages.dev/",
+        links=["http://www.meridian-x.pages.dev/"]
+    )
+    assert report["threat_score"] >= 70.0
+    assert report["verdict"] == "phishing"
+    assert any("Financial bait" in r or "free money" in r for r in report["reasons"])
+    assert any("high-risk phishing URL" in r or "pages.dev" in str(report["analyzed_links"]) for r in report["reasons"])
+
+
+def test_sender_email_domain_impersonation():
+    report = detect_email_phishing(
+        sender_name="Customer Service",
+        sender_email="billing@paypal-support.net",
+        subject="Notice regarding your account",
+        body_text="Please check your records.",
+        links=[]
+    )
+    assert report["threat_score"] >= 40.0
+    assert any("impersonate brand 'Paypal'" in r for r in report["reasons"])
+
+
+def test_bec_payroll_fraud_lexicon():
+    """Verify triggers for CEO / Payroll diversion and wire fraud."""
+    bec_samples = [
+        ("Urgent Request", "Please update direct deposit to my new routing number.", "update direct deposit"),
+        ("Payroll update", "Need to change bank details for payroll before 5pm.", "change bank details for payroll"),
+        ("Quick check", "Are you at your desk? Need urgent wire transfer.", "are you at your desk"),
+        ("Confidential Transaction", "Wire instructions for acquisition attached. Keep this confidential.", "wire instructions"),
+    ]
+    for subj, body, expected_match in bec_samples:
+        report = detect_email_phishing(
+            sender_name="Executive Office",
+            sender_email="ceo@executive-internal.com",
+            subject=subj,
+            body_text=body,
+            links=[]
+        )
+        assert report["threat_score"] >= 40.0
+        assert any("Business Email Compromise" in r or "BEC" in r for r in report["reasons"])
+        assert any(expected_match.lower() in r.lower() for r in report["reasons"])
+
+
+def test_zero_width_and_homoglyphs_stripping():
+    """Verify that zero-width spaces and Cyrillic homoglyphs are stripped/normalized."""
+    from backend.services.email_detector import strip_zero_width_and_homoglyphs
+
+    # Evasion attempt with zero-width spaces (\u200B) inside "password"
+    evasive_text = "p\u200Ba\u200Bs\u200Bs\u200Bw\u200Bo\u200Br\u200Bd"
+    assert strip_zero_width_and_homoglyphs(evasive_text) == "password"
+
+    # Evasion with Cyrillic lookalikes: а (U+0430), о (U+043E), е (U+0435)
+    cyrillic_text = "ch\u0430ng\u0435 b\u0430nk d\u0435t\u0430ils f\u043Er p\u0430yr\u043Ell"  # change bank details for payroll
+    assert "change bank details for payroll" in strip_zero_width_and_homoglyphs(cyrillic_text)
+
+    # End to end: Email using zero-width spaces in BEC phrase is still caught
+    report = detect_email_phishing(
+        sender_name="HR Director",
+        sender_email="hr@corp-portal.com",
+        subject="Important",
+        body_text="Please u\u200Bp\u200Bd\u200Ba\u200Bt\u200Be d\u200Bi\u200Br\u200Be\u200Bc\u200Bt d\u200Be\u200Bp\u200Bo\u200Bs\u200Bi\u200Bt immediately.",
+        links=[]
+    )
+    assert any("Business Email Compromise" in r for r in report["reasons"])
+
+
+def test_quishing_image_qr_code_detection():
+    """Verify embedded QR code detection from base64 image."""
+    import cv2
+    import base64
+    import numpy as np
+
+    encoder = cv2.QRCodeEncoder_create()
+    qr_matrix = encoder.encode("http://paypa1-account-verify.xyz/login")
+    qr_img = cv2.resize(qr_matrix, (200, 200), interpolation=cv2.INTER_NEAREST)
+    # Convert to 3-channel BGR
+    qr_bgr = cv2.cvtColor(qr_img, cv2.COLOR_GRAY2BGR)
+    _, buf = cv2.imencode(".png", qr_bgr)
+    b64_qr = "data:image/png;base64," + base64.b64encode(buf).decode("utf-8")
+
+    report = detect_email_phishing(
+        sender_name="Authentication Team",
+        sender_email="auth@secure-mail.com",
+        subject="Scan QR code to access your portal",
+        body_text="Use your phone to scan the QR code below to verify your login credentials.",
+        links=[],
+        image_urls=[b64_qr]
+    )
+
+    assert report["threat_score"] >= 70.0
+    assert report["verdict"] == "phishing"
+    assert any("Quishing" in r or "QR" in r for r in report["reasons"])
+    assert len(report.get("quishing_findings", [])) > 0
+
+
+def test_email_dual_engine_scoring_breakdown():
+    """Verify transparent dual-engine ML + Heuristic scoring breakdown."""
+    report = detect_email_phishing(
+        sender_name="PayPal Security",
+        sender_email="support@paypa1-update.com",
+        subject="Immediate action required: Confirm your password",
+        body_text="Your account suspended within 24 hours. Wire transfer instructions enclosed.",
+        links=["http://paypa1-update.com/login"]
+    )
+    assert "scoring_breakdown" in report
+    breakdown = report["scoring_breakdown"]
+    assert breakdown["engine"] == "dual_ml_heuristic"
+    assert "ml_score" in breakdown
+    assert "heuristic_score" in breakdown
+    assert "weight_ml" in breakdown
+    assert "weight_heuristic" in breakdown
+    assert "final_threat_score" in breakdown
+    assert breakdown["final_threat_score"] == report["threat_score"]
+
+

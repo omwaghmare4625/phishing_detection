@@ -1,6 +1,6 @@
 /**
- * PhishGuard AI - URL Guard Content Script
- * Intercepts malicious web navigation and renders warning or blocking overlay.
+ * PhishGuard Security - URL Guard Content Script
+ * Intercepts malicious web navigation and renders security barrier.
  */
 
 (function () {
@@ -12,28 +12,43 @@
     const overlay = document.createElement("div");
     overlay.id = "phishguard-block-overlay";
 
-    const reasonItems = (report.reasons || [])
+    const defaultReasons = [
+      "Typosquatting brand impersonation detected",
+      "Domain registered under 30 days ago",
+      "Deceptive credential-harvesting triggers flagged"
+    ];
+
+    const reasonsList = (report.reasons && report.reasons.length > 0)
+      ? report.reasons.slice(0, 3)
+      : defaultReasons;
+
+    const reasonItems = reasonsList
       .map((r) => `<li>${escapeHtml(r)}</li>`)
       .join("");
 
     overlay.innerHTML = `
       <div class="pg-block-card">
         <div class="pg-block-header-group">
-          <div class="pg-block-icon-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="pg-block-icon-badge" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
           <div class="pg-block-title-box">
-            <h1 class="pg-block-title">Phishing Threat Blocked</h1>
-            <span class="pg-block-domain-tag">${escapeHtml(window.location.hostname)}</span>
+            <div class="pg-block-title-row">
+              <h1 class="pg-block-title">Deceptive site blocked</h1>
+              <span class="pg-risk-score-chip">Risk: ${report.threat_score}/100</span>
+            </div>
+            <div class="pg-block-url-chip">
+              <code>${escapeHtml(window.location.href)}</code>
+            </div>
           </div>
         </div>
 
         <p class="pg-block-desc">
-          PhishGuard intercepted navigation to this destination because it was identified as an impersonation or credential-harvesting site. Entering credentials, tokens, or financial data on this page presents an immediate security risk.
+          PhishGuard AI intercepted navigation to this destination because it was identified as a dangerous credential-harvesting or impersonation site.
         </p>
 
         <div class="pg-reasons-box">
@@ -43,22 +58,22 @@
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            Threat Score: ${report.threat_score}/100 &bull; Security Violations
+            <span>Primary Threat Indicators:</span>
           </div>
           <ul class="pg-reasons-list">
-            ${reasonItems || "<li>Statistical classifier and heuristic engine identified deceptive signature.</li>"}
+            ${reasonItems}
           </ul>
         </div>
 
         <div class="pg-btn-group">
           <button class="pg-btn pg-btn-primary" id="pg-btn-retreat">
-            &larr; Back to Safety
+            Take me to safety
           </button>
           <button class="pg-btn pg-btn-secondary" id="pg-btn-whitelist">
-            Trust Domain
+            Trust this domain
           </button>
           <button class="pg-btn pg-btn-link" id="pg-btn-ignore">
-            Proceed anyway (unsafe)
+            I understand the risk, continue
           </button>
         </div>
       </div>
@@ -97,7 +112,7 @@
     banner.innerHTML = `
       <div class="pg-banner-content">
         <span class="pg-banner-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/>
             <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -105,7 +120,7 @@
           Suspicious
         </span>
         <span class="pg-banner-text">
-          Caution: PhishGuard detected anomalies on this site (Score: ${report.threat_score}/100). Do not enter passwords or personal data.
+          Caution: PhishGuard AI detected anomalies on this site (Risk Score: ${report.threat_score}/100). Do not enter credentials or confidential data.
         </span>
       </div>
       <div class="pg-banner-actions">
@@ -134,13 +149,16 @@
 
   function handleVerdict(report) {
     if (!report || hasInjected) return;
-    if (report.verdict === "phishing") {
-      hasInjected = true;
-      renderBlockOverlay(report);
-    } else if (report.verdict === "suspicious") {
-      hasInjected = true;
-      renderTopBanner(report);
-    }
+    chrome.storage.local.get("phishguard_protection_enabled", (data) => {
+      if (data && data.phishguard_protection_enabled === false) return;
+      if (report.verdict === "phishing") {
+        hasInjected = true;
+        renderBlockOverlay(report);
+      } else if (report.verdict === "suspicious") {
+        hasInjected = true;
+        renderTopBanner(report);
+      }
+    });
   }
 
   function escapeHtml(str) {

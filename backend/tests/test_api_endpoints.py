@@ -55,6 +55,8 @@ def test_check_email_api():
     assert len(data["reasons"]) > 0
     assert "nlp_analysis" in data
     assert data["nlp_analysis"]["model_loaded"] is True
+    assert "scoring_breakdown" in data
+    assert data["scoring_breakdown"]["engine"] == "dual_ml_heuristic"
 
 
 def test_check_urls_batch_api():

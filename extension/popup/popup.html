@@ -1,329 +1,453 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="charcoal">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhishGuard Security</title>
+  <title>PhishGuard AI - Protection Console</title>
   <link rel="stylesheet" href="popup.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="popup-shell">
-    <!-- Header -->
+    <!-- 1. Header -->
     <header class="app-header">
       <div class="brand-group">
-        <div class="brand-symbol" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="M9 12l2 2 4-4"/>
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#3B82F6" />
+            <path d="M9 12l2 2 4-4" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <div class="brand-identity">
-          <h1 class="brand-name">PhishGuard</h1>
-          <span class="brand-edition">Security Shield</span>
+        <div class="brand-info">
+          <div class="brand-name-wrap">
+            <h1 class="brand-name">PhishGuard</h1>
+            <span class="brand-badge">PRO</span>
+          </div>
+          <span class="brand-sub">Real-Time Threat Shield</span>
         </div>
       </div>
 
-      <div class="status-indicator status-active" id="live-status-pill">
-        <span class="status-dot"></span>
-        <span class="status-label">PROTECTED</span>
+      <div class="header-controls">
+        <!-- Master Protection Switch -->
+        <label class="switch-control" title="Toggle Real-Time Protection">
+          <input type="checkbox" id="protection-master-toggle" checked aria-label="Toggle Real-Time Protection">
+          <span class="switch-slider"></span>
+        </label>
+        
+        <!-- Quick Settings Gear -->
+        <button class="icon-btn" id="quick-settings-btn" title="Open Settings" aria-label="Open Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <!-- Navigation Bar -->
-    <nav class="nav-segment" role="tablist">
+    <!-- 2. Navigation Tabs (Page, URL, Email, History, Settings) -->
+    <nav class="nav-segment" role="tablist" aria-label="Navigation">
       <button class="nav-tab active" data-tab="active-tab-view" id="tab-active" role="tab" aria-selected="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="m9 12 2 2 4-4"/>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
-        <span>Shield</span>
+        <span>Page</span>
       </button>
       <button class="nav-tab" data-tab="quick-scan-view" id="tab-scan" role="tab" aria-selected="false">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <span>Scan</span>
+        <span>URL</span>
+      </button>
+      <button class="nav-tab" data-tab="email-scan-view" id="tab-email" role="tab" aria-selected="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        <span>Email</span>
       </button>
       <button class="nav-tab" data-tab="history-view" id="tab-history" role="tab" aria-selected="false">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        <span>Logs</span>
-      </button>
-      <button class="nav-tab" data-tab="whitelist-view" id="tab-whitelist" role="tab" aria-selected="false">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        <span>Allowlist</span>
+        <span>History</span>
       </button>
       <button class="nav-tab" data-tab="settings-view" id="tab-settings" role="tab" aria-selected="false">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
-        <span>Policy</span>
+        <span>Settings</span>
       </button>
     </nav>
 
-    <!-- Tab 1: Active Site Status -->
+    <!-- Tab 1: Current Page -->
     <main class="tab-pane active" id="active-tab-view" role="tabpanel">
-      <!-- Site Identification Card -->
-      <section class="card site-overview-card">
-        <div class="site-header-row">
-          <div class="site-protocol-badge" id="protocol-badge">
-            <svg class="protocol-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-            <span class="protocol-text">SECURE</span>
-          </div>
-          <button class="whitelist-toggle-btn" id="whitelist-toggle-btn" title="Add or remove site from trusted allowlist">
-            <span id="whitelist-icon" class="whitelist-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-            </span>
-            <span id="whitelist-label">Trust Domain</span>
-          </button>
-        </div>
-
-        <div class="site-domain-row">
-          <div class="active-url" id="active-domain" title="Current tab domain">Evaluating domain...</div>
-        </div>
-
-        <div class="threat-meter-box">
-          <div class="meter-radial">
-            <svg class="meter-svg" viewBox="0 0 100 100">
-              <circle class="meter-bg" cx="50" cy="50" r="42" />
-              <circle class="meter-value" id="gauge-bar" cx="50" cy="50" r="42" />
-            </svg>
-            <div class="meter-content">
-              <span class="meter-number" id="active-score">--</span>
-              <span class="meter-unit">/100</span>
+      <!-- Hero Section with Semicircular Risk Gauge -->
+      <section class="glass-card hero-gauge-card">
+        <div class="hero-gauge-wrapper">
+          <svg class="semicircle-gauge" viewBox="0 0 200 115">
+            <!-- Background Arc: Radius 80, Center (100, 100) -->
+            <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" />
+            <!-- Animated Value Arc: sweep from 0 to 100 -->
+            <path class="gauge-fill" id="gauge-bar" d="M 20 100 A 80 80 0 0 1 180 100" />
+          </svg>
+          
+          <div class="gauge-center-content">
+            <span class="score-caption">THREAT SCORE</span>
+            <div class="score-val-row">
+              <span class="score-large" id="active-score">--</span>
+              <span class="score-denom">/100</span>
             </div>
           </div>
-          <div class="meter-summary">
-            <div class="verdict-tag" id="active-verdict-badge">INSPECTING</div>
-            <p class="verdict-description" id="active-verdict-desc">Analyzing domain structure, certificates, and content signals.</p>
-          </div>
+        </div>
+
+        <div class="verdict-banner-wrap">
+          <div class="verdict-pill verdict-safe" id="active-verdict-badge">Safe</div>
+          <div class="domain-address-chip" id="active-domain" title="Current tab domain">Evaluating domain...</div>
         </div>
       </section>
 
-      <!-- Security Signals Section -->
-      <section class="signals-section">
-        <div class="section-title-row">
-          <h2 class="section-title">INSPECTION SIGNALS</h2>
-          <span class="section-subtitle">Real-Time Telemetry</span>
-        </div>
-        <div class="signals-card" id="reasons-container">
-          <div class="empty-state">Evaluating active connection signals...</div>
-        </div>
-        <div class="site-feedback-row">
-          <button class="ghost-feedback-btn" id="report-site-btn" title="Flag misclassification or report missed phishing">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Quick Action Row -->
+      <section class="quick-action-row">
+        <button class="action-btn" id="whitelist-toggle-btn" title="Add or remove site from trusted allowlist">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span id="whitelist-label">Trust domain</span>
+        </button>
+
+        <button class="action-btn" id="rescan-btn" title="Force fresh scan of active destination">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          <span>Re-scan</span>
+        </button>
+
+        <button class="action-btn" id="report-site-btn" title="Report misclassification or false alarm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Report</span>
+        </button>
+      </section>
+
+      <!-- "Why this verdict" Card -->
+      <section class="glass-card why-verdict-card">
+        <div class="card-header-row">
+          <div class="card-title-group">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <span>Report False Alarm / Threat</span>
-          </button>
+            <h2 class="card-title">Why this verdict</h2>
+          </div>
+          <span class="card-badge" id="protocol-badge">HTTPS</span>
+        </div>
+        
+        <div class="reasons-list-container" id="reasons-container">
+          <div class="empty-state">Evaluating active domain indicators...</div>
         </div>
       </section>
     </main>
 
-    <!-- Tab 2: URL Scanner -->
+    <!-- Tab 2: Scan URL -->
     <section class="tab-pane" id="quick-scan-view" role="tabpanel">
-      <div class="card scanner-card">
-        <div class="scanner-header">
-          <label for="manual-input" class="scanner-label">Inspect Any Web Address</label>
-          <span class="scanner-hint">Paste full URL or bare domain</span>
+      <div class="glass-card scanner-card">
+        <div class="card-title-group">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <h2 class="card-title">Inspect Web Address</h2>
         </div>
-        
-        <div class="input-control-group">
-          <div class="input-prefix-icon" aria-hidden="true">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </div>
+        <p class="card-desc">Evaluate any suspicious URL or domain against the real-time detection pipeline.</p>
+
+        <div class="scan-input-group">
           <input
             type="text"
             id="manual-input"
-            class="clean-input"
-            placeholder="e.g. https://secure-login.portal.com/auth"
+            class="glass-input"
+            placeholder="https://example.com/login"
             spellcheck="false"
             autocomplete="off"
           />
-          <button id="manual-paste-btn" class="input-action-btn" title="Paste from clipboard">
+          <button id="manual-paste-btn" class="input-paste-btn" title="Paste from clipboard">
             Paste
           </button>
         </div>
 
-        <button id="manual-scan-btn" class="primary-action-btn">
-          <span>Run Security Inspection</span>
+        <button id="manual-scan-btn" class="primary-btn glow-btn">
+          <span>Scan URL</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
           </svg>
         </button>
       </div>
 
-      <div class="scan-result-card hidden" id="scan-result">
-        <div class="result-header-row">
-          <span class="verdict-tag" id="manual-verdict-badge">SAFE</span>
-          <span class="result-score-chip" id="manual-score">Score: 0/100</span>
+      <!-- Scan Result Card -->
+      <div class="glass-card scan-result-card hidden" id="scan-result">
+        <div class="result-header">
+          <div class="verdict-pill verdict-safe" id="manual-verdict-badge">Safe</div>
+          <span class="score-chip" id="manual-score">Score: 0/100</span>
         </div>
-        <div class="result-reasons-list" id="manual-reasons"></div>
+        <div class="reasons-list-container" id="manual-reasons"></div>
       </div>
     </section>
 
-    <!-- Tab 3: History Log -->
-    <section class="tab-pane" id="history-view" role="tabpanel">
-      <!-- Session Telemetry Summary -->
-      <div class="telemetry-bar">
-        <div class="telemetry-cell">
-          <span class="telemetry-number" id="stat-scans">0</span>
-          <span class="telemetry-caption">Sites Checked</span>
+    <!-- Tab 3: Scan Email -->
+    <section class="tab-pane" id="email-scan-view" role="tabpanel">
+      <div class="glass-card scanner-card">
+        <div class="card-title-group">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <h2 class="card-title">Inspect Email Threat</h2>
         </div>
-        <div class="telemetry-cell">
-          <span class="telemetry-number text-danger" id="stat-blocked">0</span>
-          <span class="telemetry-caption">Threats Blocked</span>
-        </div>
-        <div class="telemetry-cell">
-          <span class="telemetry-number text-accent" id="stat-mode">Balanced</span>
-          <span class="telemetry-caption">Policy Mode</span>
-        </div>
-      </div>
+        <p class="card-desc">Audit sender spoofing, BEC triggers, urgency language, quishing, and embedded links.</p>
 
-      <div class="section-title-row">
-        <h2 class="section-title">SECURITY EVENT LOG</h2>
-        <div class="history-actions-group">
-          <button class="secondary-btn compact-btn" id="export-history-btn" title="Export scan history to CSV file">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            <span>Export CSV</span>
-          </button>
-          <button class="ghost-btn-danger" id="clear-history-btn">Clear</button>
-        </div>
-      </div>
-      <div class="history-list-container" id="history-list">
-        <div class="empty-state">No recent scan activity recorded.</div>
-      </div>
-    </section>
+        <div class="email-input-grid">
+          <div class="input-field-group">
+            <label class="field-label" for="email-sender-input">Sender (Name &amp; Address)</label>
+            <input
+              type="text"
+              id="email-sender-input"
+              class="glass-input"
+              placeholder="e.g. Executive Office &lt;ceo@company-corp.com&gt;"
+              spellcheck="false"
+            />
+          </div>
 
-    <!-- Tab 4: Allowlist Manager -->
-    <section class="tab-pane" id="whitelist-view" role="tabpanel">
-      <div class="section-title-row">
-        <h2 class="section-title">TRUSTED DOMAINS</h2>
-        <span class="count-pill" id="whitelist-count">0</span>
-      </div>
-      <p class="section-explanation">Domains on your allowlist are trusted and will bypass automated blocking barriers.</p>
-      
-      <div class="inline-add-row">
-        <input
-          type="text"
-          id="new-whitelist-input"
-          class="clean-input"
-          placeholder="e.g. internal.corp.net"
-          spellcheck="false"
-        />
-        <button id="add-whitelist-btn" class="primary-action-btn compact-btn">
-          <span>Add Domain</span>
+          <div class="input-field-group">
+            <label class="field-label" for="email-subject-input">Subject Line</label>
+            <input
+              type="text"
+              id="email-subject-input"
+              class="glass-input"
+              placeholder="e.g. Urgent: Wire instructions &amp; payroll update"
+              spellcheck="false"
+            />
+          </div>
+
+          <div class="input-field-group">
+            <label class="field-label" for="email-body-input">Email Body</label>
+            <textarea
+              id="email-body-input"
+              class="glass-textarea"
+              rows="4"
+              placeholder="Paste email message text here..."
+              spellcheck="false"
+            ></textarea>
+          </div>
+
+          <div class="input-field-group">
+            <label class="field-label" for="email-links-input">Embedded Links / QR Image (Optional)</label>
+            <input
+              type="text"
+              id="email-links-input"
+              class="glass-input"
+              placeholder="https://paypa1-update.com/login, http://..."
+              spellcheck="false"
+            />
+          </div>
+        </div>
+
+        <button id="manual-email-scan-btn" class="primary-btn glow-btn" style="margin-top: 10px;">
+          <span>Scan Email</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
         </button>
       </div>
 
-      <div class="whitelist-container" id="whitelist-list">
-        <div class="empty-state">No domains currently whitelisted.</div>
+      <!-- Email Scan Result Card -->
+      <div class="glass-card scan-result-card hidden" id="email-scan-result">
+        <div class="result-header">
+          <div class="verdict-pill verdict-safe" id="email-verdict-badge">Safe</div>
+          <span class="score-chip" id="email-score-chip">Score: 0/100</span>
+        </div>
+
+        <!-- Dual Engine Breakdown Cards -->
+        <div class="dual-engine-telemetry" id="email-engine-telemetry">
+          <div class="engine-chip">
+            <span class="engine-label">NLP Model</span>
+            <span class="engine-val" id="email-ml-val">0%</span>
+          </div>
+          <div class="engine-chip">
+            <span class="engine-label">Heuristic Penalty</span>
+            <span class="engine-val" id="email-heur-val">0</span>
+          </div>
+          <div class="engine-chip">
+            <span class="engine-label">Composite</span>
+            <span class="engine-val text-accent" id="email-final-val">0/100</span>
+          </div>
+        </div>
+
+        <div class="reasons-list-container" id="email-reasons-list"></div>
       </div>
     </section>
 
-    <!-- Tab 5: Settings / Policy -->
-    <section class="tab-pane" id="settings-view" role="tabpanel">
-      <div class="section-title-row">
-        <h2 class="section-title">PROTECTION SENSITIVITY</h2>
-      </div>
-
-      <div class="policy-radio-group">
-        <label class="policy-option-card">
-          <input type="radio" name="protection-level" value="aggressive" id="radio-aggressive">
-          <div class="policy-card-body">
-            <div class="policy-title-row">
-              <span class="policy-name">High Strictness</span>
-              <span class="policy-threshold">Threshold &ge; 50</span>
-            </div>
-            <p class="policy-desc">Flags all early warning indicators and potential brand impersonations. Recommended for high-risk workstations.</p>
-          </div>
-        </label>
-
-        <label class="policy-option-card">
-          <input type="radio" name="protection-level" value="balanced" id="radio-balanced" checked>
-          <div class="policy-card-body">
-            <div class="policy-title-row">
-              <span class="policy-name">Standard Protection</span>
-              <span class="policy-threshold badge-recommended">Recommended</span>
-            </div>
-            <p class="policy-desc">Blocks high-confidence threats (&ge; 70) and warns on suspicious indicators (&ge; 40). Balanced security with minimal disruption.</p>
-          </div>
-        </label>
-
-        <label class="policy-option-card">
-          <input type="radio" name="protection-level" value="permissive" id="radio-permissive">
-          <div class="policy-card-body">
-            <div class="policy-title-row">
-              <span class="policy-name">Permissive</span>
-              <span class="policy-threshold">Threshold &ge; 85</span>
-            </div>
-            <p class="policy-desc">Restricts blocking strictly to verified malicious domains and severe typosquats. Non-intrusive mode.</p>
-          </div>
-        </label>
-      </div>
-
-      <div class="card settings-form-card">
-        <div class="action-card-text">
-          <span class="action-card-title">Backend API Server</span>
-          <span class="action-card-desc">Detection endpoint URL for heuristic & ML models</span>
+    <!-- Tab 3: History -->
+    <section class="tab-pane" id="history-view" role="tabpanel">
+      <!-- Session Telemetry Summary -->
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <span class="stat-num" id="stat-scans">0</span>
+          <span class="stat-label">Sites Scanned</span>
         </div>
-        <div class="input-action-row">
+        <div class="stat-cell">
+          <span class="stat-num text-danger" id="stat-blocked">0</span>
+          <span class="stat-label">Threats Blocked</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num text-accent" id="stat-mode">Balanced</span>
+          <span class="stat-label">Sensitivity</span>
+        </div>
+      </div>
+
+      <div class="glass-card history-card">
+        <div class="card-header-row">
+          <h2 class="card-title">Recent Activity</h2>
+          <div class="history-actions">
+            <button class="secondary-btn compact-btn" id="export-history-btn" title="Export scan history to CSV">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Export CSV</span>
+            </button>
+            <button class="ghost-btn-danger" id="clear-history-btn">Clear</button>
+          </div>
+        </div>
+
+        <div class="history-scroll-list" id="history-list">
+          <div class="empty-state">No recent scan activity recorded.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Settings -->
+    <section class="tab-pane" id="settings-view" role="tabpanel">
+      <!-- Sensitivity Segmented Control -->
+      <div class="glass-card">
+        <h2 class="card-title">Detection Sensitivity</h2>
+        <p class="card-desc">Calibrate threat score thresholds for warning and blocking barriers.</p>
+        
+        <div class="segmented-sensitivity" role="radiogroup" aria-label="Sensitivity Level">
+          <label class="segment-btn">
+            <input type="radio" name="protection-level" value="aggressive" id="radio-aggressive">
+            <div class="segment-content">
+              <span class="segment-title">Aggressive</span>
+              <span class="segment-sub">&ge; 50</span>
+            </div>
+          </label>
+          <label class="segment-btn">
+            <input type="radio" name="protection-level" value="balanced" id="radio-balanced" checked>
+            <div class="segment-content">
+              <span class="segment-title">Balanced</span>
+              <span class="segment-sub">&ge; 70</span>
+            </div>
+          </label>
+          <label class="segment-btn">
+            <input type="radio" name="protection-level" value="permissive" id="radio-permissive">
+            <div class="segment-content">
+              <span class="segment-title">Permissive</span>
+              <span class="segment-sub">&ge; 85</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Feature Toggles -->
+      <div class="glass-card toggles-card">
+        <h2 class="card-title">Protection Modules</h2>
+        
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-title">Gmail & Webmail Guard</span>
+            <span class="toggle-desc">Inspect sender spoofing & links in opened emails</span>
+          </div>
+          <label class="switch-control">
+            <input type="checkbox" id="gmail-protection-toggle" checked aria-label="Toggle Gmail Protection">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-title">Interface Theme</span>
+            <span class="toggle-desc">Toggle between Charcoal Dark and Solaris Light</span>
+          </div>
+          <button class="secondary-btn compact-btn" id="theme-toggle-btn" title="Switch Theme">
+            <span id="theme-btn-label">Solaris Light</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Allowlist Manager -->
+      <div class="glass-card allowlist-card">
+        <div class="card-header-row">
+          <h2 class="card-title">Trusted Domains (Allowlist)</h2>
+          <span class="counter-badge" id="whitelist-count">0</span>
+        </div>
+        <p class="card-desc">Domains added here bypass real-time blocking.</p>
+
+        <div class="inline-add-row">
+          <input
+            type="text"
+            id="new-whitelist-input"
+            class="glass-input"
+            placeholder="internal.company.com"
+            spellcheck="false"
+          />
+          <button id="add-whitelist-btn" class="primary-btn compact-btn">Add</button>
+        </div>
+
+        <div class="whitelist-scroll-list" id="whitelist-list">
+          <div class="empty-state">No domains currently whitelisted.</div>
+        </div>
+      </div>
+
+      <!-- Backend Connection Config -->
+      <div class="glass-card">
+        <h2 class="card-title">Backend Gateway</h2>
+        <div class="inline-add-row">
           <input
             type="text"
             id="api-base-input"
-            class="clean-input"
+            class="glass-input"
             placeholder="http://127.0.0.1:8000"
             spellcheck="false"
           />
-          <button id="save-api-base-btn" class="primary-action-btn compact-btn">
-            <span>Save</span>
-          </button>
+          <button id="save-api-base-btn" class="secondary-btn compact-btn">Save</button>
         </div>
       </div>
 
-      <div class="card settings-action-card">
-        <div class="action-card-text">
-          <span class="action-card-title">Local Threat Cache</span>
-          <span class="action-card-desc">Purge cached verdicts to force real-time re-evaluation</span>
+      <!-- Cache Management -->
+      <div class="glass-card row-action-card">
+        <div class="toggle-info">
+          <span class="toggle-title">Local Threat Cache</span>
+          <span class="toggle-desc">Purge cached verdicts to force fresh evaluations</span>
         </div>
-        <button class="secondary-btn" id="purge-cache-btn">
-          <span>Purge Cache</span>
-        </button>
+        <button class="secondary-btn compact-btn" id="purge-cache-btn">Purge Cache</button>
       </div>
     </section>
 
-    <!-- System Status Footer -->
+    <!-- 3. Footer Status Chip -->
     <footer class="app-footer">
-      <div class="footer-telemetry">
-        <span class="telemetry-label">Engine:</span>
-        <span class="telemetry-val" id="engine-status">Heuristics + ML v1.4</span>
-      </div>
-      <div class="footer-telemetry">
-        <span class="telemetry-label">Service:</span>
-        <span class="telemetry-val status-online" id="backend-status">Connected</span>
+      <div class="status-chip-container" id="backend-status-chip">
+        <span class="chip-dot"></span>
+        <span class="chip-text" id="backend-status">Backend connected · 127.0.0.1:8000</span>
       </div>
     </footer>
 

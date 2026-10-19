@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Phishing Shield Detection API",
-    description="Backend ML and heuristic analysis for Chrome extension protection",
+    description="Backend threat intelligence and heuristic analysis for Chrome extension protection",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -89,6 +89,7 @@ class EmailCheckRequest(BaseModel):
     subject: str = Field(default="")
     body_text: str = Field(default="")
     links: Optional[List[str]] = Field(default_factory=list)
+    image_urls: Optional[List[str]] = Field(default_factory=list)
 
 
 class EmailCheckResponse(BaseModel):
@@ -99,6 +100,8 @@ class EmailCheckResponse(BaseModel):
     link_count: int
     analyzed_links: List[dict]
     nlp_analysis: Optional[dict] = None
+    quishing_findings: Optional[List[dict]] = None
+    scoring_breakdown: Optional[dict] = None
 
 
 @app.get("/api/health")
@@ -196,7 +199,8 @@ def check_email_endpoint(payload: EmailCheckRequest):
             sender_email=payload.sender_email,
             subject=payload.subject,
             body_text=payload.body_text,
-            links=payload.links
+            links=payload.links,
+            image_urls=payload.image_urls
         )
         return EmailCheckResponse(
             threat_score=result["threat_score"],
@@ -205,7 +209,9 @@ def check_email_endpoint(payload: EmailCheckRequest):
             reasons=result["reasons"],
             link_count=result["link_count"],
             analyzed_links=result["analyzed_links"],
-            nlp_analysis=result.get("nlp_analysis")
+            nlp_analysis=result.get("nlp_analysis"),
+            quishing_findings=result.get("quishing_findings"),
+            scoring_breakdown=result.get("scoring_breakdown")
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Email analysis error: {str(exc)}")

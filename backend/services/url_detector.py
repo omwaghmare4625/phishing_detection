@@ -148,7 +148,7 @@ def calculate_bayesian_threat_score(
         base_prior = 0.65
         w_heur = 0.80
         w_ml = 0.20
-    elif penalty_score >= 25.0 or has_suspicious_keywords:
+    elif penalty_score >= 20.0 or has_suspicious_keywords:
         base_prior = 0.35
         w_heur = 0.60
         w_ml = 0.40
@@ -170,8 +170,8 @@ def calculate_bayesian_threat_score(
         l_heur = 6.0
     elif penalty_score >= 20.0:
         l_heur = 3.0
-    elif has_suspicious_keywords:
-        l_heur = 2.0
+    elif penalty_score >= 10.0 or has_suspicious_keywords:
+        l_heur = 1.8
     else:
         l_heur = 0.25
 
@@ -183,6 +183,8 @@ def calculate_bayesian_threat_score(
     # 5. Guardrails & Safety Caps
     if penalty_score >= 50.0:
         score = max(score, 75.0, penalty_score)
+    elif ml_prob >= 0.85 and (penalty_score >= 15.0 or has_suspicious_keywords):
+        score = max(score, 75.0)
     elif penalty_score == 0.0 and not has_suspicious_keywords:
         score = min(score, 25.0)
 

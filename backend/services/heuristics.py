@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 try:
     import tldextract  # type: ignore
-    _TLD_EXTRACTOR = tldextract.TLDExtract(cache_dir=None)
+    _TLD_EXTRACTOR = tldextract.TLDExtract(cache_dir=None, suffix_list_urls=())
 except Exception:
     _TLD_EXTRACTOR = None
 
@@ -35,6 +35,26 @@ HIGH_RISK_TLDS = {
     "xyz", "top", "tk", "ml", "ga", "cf", "gq",
     "buzz", "cam", "fit", "work", "click", "loan", "zip", "mov"
 }
+
+MULTI_TENANT_HOSTING_DOMAINS = frozenset({
+    "pages.dev", "workers.dev", "github.io", "gitlab.io",
+    "vercel.app", "now.sh", "netlify.app", "web.app", "firebaseapp.com",
+    "onrender.com", "render.com", "glitch.me", "herokuapp.com", "surge.sh",
+    "ngrok-free.app", "ngrok.io", "duckdns.org", "000webhostapp.com",
+    "wixsite.com", "weebly.com", "sites.google.com", "blogspot.com",
+    "appspot.com", "azurewebsites.net"
+})
+
+
+def is_multi_tenant_subdomain(hostname: str) -> tuple[bool, str]:
+    """Check if hostname is a user-generated subdomain on a multi-tenant hosting service."""
+    host_lower = hostname.lower().strip(".")
+    for platform in MULTI_TENANT_HOSTING_DOMAINS:
+        if host_lower.endswith(f".{platform}"):
+            sub = host_lower[:-len(f".{platform}")].rstrip(".")
+            if sub and sub != "www":
+                return True, platform
+    return False, ""
 
 TOP_DOMAINS_FILE = Path(__file__).resolve().parent.parent / "data" / "top_domains.txt"
 
@@ -312,8 +332,13 @@ def evaluate_heuristics(url: str) -> dict[str, any]:
     # Cap heuristic penalty at 95
     penalty_score = min(penalty_score, 95.0)
 
+    is_multi_tenant, tenant_platform = is_multi_tenant_subdomain(hostname)
+    if is_multi_tenant:
+        flags.append(f"Hosted on user-generated multi-tenant platform: '{tenant_platform}'")
+        penalty_score = min(penalty_score + 20.0, 95.0)
+
     is_trusted = False
-    if not check_homograph_and_punycode(hostname) and "@" not in (parsed.netloc or ""):
+    if not is_multi_tenant and not check_homograph_and_punycode(hostname) and "@" not in (parsed.netloc or ""):
         trusted_set = load_trusted_domains()
         root_domain = get_registered_domain(hostname)
         if hostname in trusted_set or root_domain in trusted_set:
@@ -323,7 +348,6 @@ def evaluate_heuristics(url: str) -> dict[str, any]:
                 if hostname == fallback or hostname.endswith("." + fallback):
                     is_trusted = True
                     break
-
 
     if is_trusted:
         penalty_score = 0.0

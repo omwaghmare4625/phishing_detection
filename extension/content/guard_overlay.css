@@ -81,6 +81,15 @@
 .pg-block-title-box {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+
+.pg-block-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .pg-block-title {
@@ -89,6 +98,34 @@
   color: #fff;
   letter-spacing: -0.3px;
   line-height: 1.25;
+}
+
+.pg-risk-score-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--pg-danger-surface);
+  border: 1px solid var(--pg-border-danger);
+  color: #fca5a5;
+  white-space: nowrap;
+}
+
+.pg-block-url-chip {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--pg-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.pg-block-url-chip code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #cbd5e1;
+  word-break: break-all;
 }
 
 .pg-block-domain-tag {
@@ -295,7 +332,7 @@
 /* 3. Gmail Header Security Bar */
 .phishguard-email-card {
   margin: 10px 0 14px 0 !important;
-  padding: 12px 16px !important;
+  padding: 10px 14px !important;
   border-radius: 8px !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   box-sizing: border-box !important;
@@ -320,44 +357,162 @@
   border-color: rgba(16, 185, 129, 0.3) !important;
 }
 
-.pg-email-badge {
+.pg-email-header-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.pg-email-status-group {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  font-size: 12.5px !important;
-  font-weight: 600 !important;
-  margin-bottom: 6px !important;
 }
 
-.pg-phishing .pg-email-badge { color: #f87171 !important; }
-.pg-suspicious .pg-email-badge { color: #fbbf24 !important; }
-.pg-safe .pg-email-badge { color: #34d399 !important; }
+.pg-email-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.pg-email-verdict {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.1px !important;
+}
+
+.pg-phishing .pg-email-verdict { color: #f87171 !important; }
+.pg-suspicious .pg-email-verdict { color: #fbbf24 !important; }
+.pg-safe .pg-email-verdict { color: #34d399 !important; }
 
 .pg-email-score-tag {
-  margin-left: auto !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   background: rgba(255, 255, 255, 0.06) !important;
-  padding: 2px 8px !important;
+  padding: 2px 7px !important;
   border-radius: 4px !important;
   color: var(--pg-text-secondary) !important;
 }
 
-.pg-email-details {
-  font-size: 12.5px !important;
+.pg-email-toggle-btn {
+  background: transparent !important;
+  border: 1px solid var(--pg-border) !important;
+  border-radius: 4px !important;
   color: var(--pg-text-secondary) !important;
-  line-height: 1.5 !important;
+  padding: 3px 8px !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.15s ease !important;
 }
 
-.pg-email-details ul {
-  margin: 6px 0 0 16px !important;
-  padding: 0 !important;
-  color: #e2e8f0 !important;
+.pg-email-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
 }
 
-.pg-email-details li {
-  margin-bottom: 3px !important;
+.pg-chevron {
+  transition: transform 0.2s ease !important;
+}
+
+.phishguard-email-card.expanded .pg-chevron {
+  transform: rotate(180deg) !important;
+}
+
+.pg-email-details-drawer {
+  display: none !important;
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.phishguard-email-card.expanded .pg-email-details-drawer {
+  display: flex !important;
+}
+
+.pg-detail-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+  color: #cbd5e1 !important;
+}
+
+.pg-detail-label {
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  flex-shrink: 0 !important;
+}
+
+.pg-detail-val {
+  color: #f1f5f9 !important;
+}
+
+.pg-detail-links {
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.pg-links-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  width: 100% !important;
+}
+
+.pg-link-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid var(--pg-border) !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  gap: 8px !important;
+}
+
+.pg-link-item.danger {
+  border-color: var(--pg-border-danger) !important;
+  color: #fca5a5 !important;
+}
+
+.pg-link-item.warning {
+  border-color: var(--pg-border-warning) !important;
+  color: #fde68a !important;
+}
+
+.pg-link-item.safe {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  color: #a7f3d0 !important;
+}
+
+.pg-link-url {
+  font-family: 'JetBrains Mono', monospace !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.pg-link-score {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+  flex-shrink: 0 !important;
+}
+
+.pg-link-empty {
+  font-style: italic !important;
+  color: var(--pg-text-tertiary) !important;
+  font-size: 11px !important;
 }
 
 /* 4. Disguised Link Tooltip */
@@ -420,4 +575,228 @@
 .pg-tip-dest span {
   color: #93c5fd !important;
   font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 5. Inline Link Threat Badges & Indicators in Gmail Body */
+.phishguard-inline-link.pg-flagged-phish {
+  text-decoration: underline wavy #ef4444 !important;
+  text-decoration-thickness: 2px !important;
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  border-radius: 3px !important;
+  padding: 1px 4px !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.phishguard-inline-link.pg-flagged-phish:hover {
+  background-color: rgba(239, 68, 68, 0.22) !important;
+}
+
+.phishguard-inline-link.pg-flagged-warn {
+  text-decoration: underline wavy #f59e0b !important;
+  text-decoration-thickness: 1.5px !important;
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-radius: 3px !important;
+  padding: 1px 4px !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.phishguard-inline-link.pg-flagged-warn:hover {
+  background-color: rgba(245, 158, 11, 0.22) !important;
+}
+
+.phishguard-inline-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-left: 6px !important;
+  margin-right: 4px !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  vertical-align: middle !important;
+  cursor: help !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  user-select: none !important;
+  line-height: 1.3 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.phishguard-inline-badge.pg-inline-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+}
+
+.phishguard-inline-badge.pg-inline-warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+
+.pg-inline-badge-icon {
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.pg-inline-badge-text {
+  text-transform: uppercase !important;
+}
+
+/* Hover Tooltip for Inline Link Badge */
+.phishguard-inline-tooltip {
+  position: absolute !important;
+  bottom: calc(100% + 8px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(4px) !important;
+  background: #0b1020 !important;
+  border: 1px solid var(--pg-border-danger) !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  width: 260px !important;
+  max-width: 320px !important;
+  color: #f8fafc !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease !important;
+  z-index: 2147483647 !important;
+  text-align: left !important;
+  white-space: normal !important;
+  font-weight: 400 !important;
+}
+
+.pg-inline-warning .phishguard-inline-tooltip {
+  border-color: var(--pg-border-warning) !important;
+}
+
+.phishguard-inline-badge:hover .phishguard-inline-tooltip,
+.phishguard-inline-badge:focus .phishguard-inline-tooltip {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+.pg-tip-heading {
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  margin-bottom: 4px !important;
+  color: #f87171 !important;
+}
+
+.pg-inline-warning .pg-tip-heading {
+  color: #fbbf24 !important;
+}
+
+.pg-tip-metrics {
+  display: block !important;
+  font-size: 11px !important;
+  color: #94a3b8 !important;
+  margin-bottom: 5px !important;
+}
+
+.pg-tip-metrics strong {
+  color: #fff !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.pg-tip-url {
+  display: block !important;
+  font-size: 10.5px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #93c5fd !important;
+  margin-bottom: 6px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  padding: 3px 6px !important;
+  border-radius: 4px !important;
+}
+
+.pg-tip-reason {
+  display: block !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Quishing Findings in Security Drawer */
+.pg-quishing-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-top: 4px !important;
+  width: 100% !important;
+}
+
+.pg-quishing-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.pg-quishing-item.danger {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.pg-quishing-item.warning {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+.pg-qr-badge {
+  background: #3b82f6 !important;
+  color: #fff !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  letter-spacing: 0.3px !important;
+}
+
+.pg-qr-dest {
+  flex: 1 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #cbd5e1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.pg-qr-score {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+  color: #f87171 !important;
+  font-size: 10.5px !important;
+}
+
+/* Scoring Engine Tags in Drawer */
+.pg-scoring-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.pg-tag-chip {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 10.5px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #cbd5e1 !important;
 }
