@@ -89,7 +89,26 @@
       <!-- Hero Section with Semicircular Risk Gauge -->
       <section class="glass-card hero-gauge-card">
         <div class="hero-gauge-wrapper">
+          <div class="hero-gauge-ambient-glow" id="hero-gauge-glow"></div>
           <svg class="semicircle-gauge" viewBox="0 0 200 115">
+            <defs>
+              <linearGradient id="gauge-grad-safe" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10B981" />
+                <stop offset="100%" stop-color="#34D399" />
+              </linearGradient>
+              <linearGradient id="gauge-grad-warning" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#F59E0B" />
+                <stop offset="100%" stop-color="#FCD34D" />
+              </linearGradient>
+              <linearGradient id="gauge-grad-danger" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#EF4444" />
+                <stop offset="100%" stop-color="#F87171" />
+              </linearGradient>
+              <linearGradient id="gauge-grad-trusted" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3B82F6" />
+                <stop offset="100%" stop-color="#60A5FA" />
+              </linearGradient>
+            </defs>
             <!-- Background Arc: Radius 80, Center (100, 100) -->
             <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" />
             <!-- Animated Value Arc: sweep from 0 to 100 -->

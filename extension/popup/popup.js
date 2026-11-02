@@ -568,16 +568,30 @@ function renderTabReport(report) {
     const offset = GAUGE_LENGTH - (score / 100) * GAUGE_LENGTH;
     gaugeBar.style.strokeDashoffset = offset;
 
-    // Color transitions: Emerald (Safe) -> Amber (Suspicious) -> Red (Phishing)
+    // Glowing dynamic gradient transitions
     if (isWhitelistedState) {
-      gaugeBar.style.stroke = "var(--accent-blue)";
+      gaugeBar.style.stroke = "url(#gauge-grad-trusted)";
     } else if (score >= 70) {
-      gaugeBar.style.stroke = "var(--color-danger)";
+      gaugeBar.style.stroke = "url(#gauge-grad-danger)";
     } else if (score >= 40) {
-      gaugeBar.style.stroke = "var(--color-warning)";
+      gaugeBar.style.stroke = "url(#gauge-grad-warning)";
     } else {
-      gaugeBar.style.stroke = "var(--color-safe)";
+      gaugeBar.style.stroke = "url(#gauge-grad-safe)";
     }
+  }
+
+  // Update hero card data-verdict for ambient glow
+  const heroCard = document.querySelector(".hero-gauge-card");
+  let verdictState = "safe";
+  if (isWhitelistedState) {
+    verdictState = "trusted";
+  } else if (report.verdict === "phishing") {
+    verdictState = "phishing";
+  } else if (report.verdict === "suspicious") {
+    verdictState = "suspicious";
+  }
+  if (heroCard) {
+    heroCard.setAttribute("data-verdict", verdictState);
   }
 
   // Verdict Pill
