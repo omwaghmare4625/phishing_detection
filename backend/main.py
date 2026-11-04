@@ -221,6 +221,6 @@ if __name__ == "__main__":
     import os
     import uvicorn
     host = os.environ.get("HOST", "127.0.0.1")
-    port = int(os.environ.get("PORT", "8000"))
+    port = int(os.environ.get("PORT", "8080"))
     uvicorn.run("backend.main:app", host=host, port=port, reload=True)
 

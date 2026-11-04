@@ -7,7 +7,7 @@
  * - Real-time navigation interception & tab security status
  */
 
-const DEFAULT_API_BASE = "http://127.0.0.1:8000";
+const DEFAULT_API_BASE = "http://127.0.0.1:8080";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 const memoryCache = new Map();
 

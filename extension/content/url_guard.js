@@ -5,12 +5,43 @@
 
 (function () {
   let hasInjected = false;
+  let currentTheme = "charcoal";
+
+  function applyTheme(theme) {
+    if (!theme) return;
+    if (theme === "dark") theme = "charcoal";
+    if (theme === "light") theme = "solaris";
+    currentTheme = theme;
+    if (document.documentElement) {
+      document.documentElement.setAttribute("data-phishguard-theme", currentTheme);
+    }
+    const overlay = document.getElementById("phishguard-block-overlay");
+    if (overlay) overlay.setAttribute("data-theme", currentTheme);
+    const banner = document.getElementById("phishguard-top-banner");
+    if (banner) banner.setAttribute("data-theme", currentTheme);
+    const tooltip = document.getElementById("phishguard-link-tooltip");
+    if (tooltip) tooltip.setAttribute("data-theme", currentTheme);
+  }
+
+  try {
+    chrome.storage.local.get("phishguard_theme", (data) => {
+      if (data && data.phishguard_theme) {
+        applyTheme(data.phishguard_theme);
+      }
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && changes.phishguard_theme) {
+        applyTheme(changes.phishguard_theme.newValue);
+      }
+    });
+  } catch (_) {}
 
   function renderBlockOverlay(report) {
     if (document.getElementById("phishguard-block-overlay")) return;
 
     const overlay = document.createElement("div");
     overlay.id = "phishguard-block-overlay";
+    overlay.setAttribute("data-theme", currentTheme);
 
     const defaultReasons = [
       "Typosquatting brand impersonation detected",
@@ -108,6 +139,7 @@
 
     const banner = document.createElement("div");
     banner.id = "phishguard-top-banner";
+    banner.setAttribute("data-theme", currentTheme);
 
     banner.innerHTML = `
       <div class="pg-banner-content">
@@ -179,6 +211,7 @@
         tooltip = document.createElement("div");
         tooltip.id = "phishguard-link-tooltip";
         tooltip.className = "phishguard-link-tooltip hidden";
+        tooltip.setAttribute("data-theme", currentTheme);
         document.documentElement.appendChild(tooltip);
       }
       return tooltip;

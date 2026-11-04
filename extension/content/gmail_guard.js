@@ -6,6 +6,36 @@
 
 (function () {
   const PROCESSED_ATTR = "data-phishguard-scanned";
+  let currentTheme = "charcoal";
+
+  function applyTheme(theme) {
+    if (!theme) return;
+    if (theme === "dark") theme = "charcoal";
+    if (theme === "light") theme = "solaris";
+    currentTheme = theme;
+    if (document.documentElement) {
+      document.documentElement.setAttribute("data-phishguard-theme", currentTheme);
+    }
+    document.querySelectorAll(".phishguard-email-card").forEach((card) => {
+      card.setAttribute("data-theme", currentTheme);
+    });
+    document.querySelectorAll(".phishguard-inline-badge").forEach((badge) => {
+      badge.setAttribute("data-theme", currentTheme);
+    });
+  }
+
+  try {
+    chrome.storage.local.get("phishguard_theme", (data) => {
+      if (data && data.phishguard_theme) {
+        applyTheme(data.phishguard_theme);
+      }
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && changes.phishguard_theme) {
+        applyTheme(changes.phishguard_theme.newValue);
+      }
+    });
+  } catch (_) {}
 
   const GMAIL_INTERNAL_HOSTS = new Set([
     "mail.google.com",
@@ -130,6 +160,7 @@
     if (bodyElem.parentNode.querySelector(".phishguard-email-card")) return;
 
     const card = document.createElement("div");
+    card.setAttribute("data-theme", currentTheme);
     const verdict = (report.verdict || "safe").toLowerCase();
     card.className = `phishguard-email-card pg-${verdict}`;
 
@@ -324,6 +355,7 @@
 
         const badge = document.createElement("span");
         badge.className = `phishguard-inline-badge ${isPhish ? 'pg-inline-danger' : 'pg-inline-warning'}`;
+        badge.setAttribute("data-theme", currentTheme);
         badge.setAttribute("tabindex", "0");
         badge.setAttribute("role", "note");
         badge.setAttribute("aria-label", `${isPhish ? 'Phishing' : 'Suspicious'} link detected`);

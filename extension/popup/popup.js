@@ -4,7 +4,7 @@
  * allowlist management, sensitivity settings, and theme toggling.
  */
 
-const DEFAULT_API_BASE = "http://127.0.0.1:8000";
+const DEFAULT_API_BASE = "http://127.0.0.1:8080";
 // Semicircular Arc length: Radius = 80, Length = pi * 80 ≈ 251.327
 const GAUGE_LENGTH = Math.PI * 80;
 
@@ -52,13 +52,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Theme Management (Charcoal Dark / Solaris Light)
 function setupTheme() {
-  chrome.storage.local.get("phishguard_theme", (data) => {
-    let theme = data.phishguard_theme || "charcoal";
+  function applyTheme(theme) {
     if (theme === "dark") theme = "charcoal";
     if (theme === "light") theme = "solaris";
     document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("phishguard_theme", theme);
+    } catch (_) {}
+
+    // Update active state in segmented theme control
+    const darkBtn = document.getElementById("theme-btn-charcoal");
+    const lightBtn = document.getElementById("theme-btn-solaris");
+    if (darkBtn && lightBtn) {
+      if (theme === "solaris") {
+        lightBtn.classList.add("active");
+        darkBtn.classList.remove("active");
+      } else {
+        darkBtn.classList.add("active");
+        lightBtn.classList.remove("active");
+      }
+    }
     updateThemeBtnLabel(theme);
+  }
+
+  // Load saved theme from storage or fast synchronous localStorage
+  chrome.storage.local.get("phishguard_theme", (data) => {
+    let saved = data?.phishguard_theme;
+    if (!saved) {
+      try {
+        saved = localStorage.getItem("phishguard_theme");
+      } catch (_) {}
+    }
+    applyTheme(saved || "charcoal");
   });
+
+  const darkBtn = document.getElementById("theme-btn-charcoal");
+  const lightBtn = document.getElementById("theme-btn-solaris");
+  if (darkBtn) {
+    darkBtn.addEventListener("click", () => {
+      applyTheme("charcoal");
+      chrome.storage.local.set({ phishguard_theme: "charcoal" });
+      showToast("Theme: Charcoal Dark");
+    });
+  }
+  if (lightBtn) {
+    lightBtn.addEventListener("click", () => {
+      applyTheme("solaris");
+      chrome.storage.local.set({ phishguard_theme: "solaris" });
+      showToast("Theme: Solaris Light");
+    });
+  }
 
   const themeBtn = document.getElementById("theme-toggle-btn");
   if (themeBtn) {
@@ -66,9 +109,8 @@ function setupTheme() {
       const current = document.documentElement.getAttribute("data-theme") || "charcoal";
       const isCharcoal = current === "charcoal" || current === "dark";
       const next = isCharcoal ? "solaris" : "charcoal";
-      document.documentElement.setAttribute("data-theme", next);
+      applyTheme(next);
       chrome.storage.local.set({ phishguard_theme: next });
-      updateThemeBtnLabel(next);
       const name = next === "solaris" ? "Solaris Light" : "Charcoal Dark";
       showToast(`Switched to ${name}`);
     });
@@ -568,15 +610,15 @@ function renderTabReport(report) {
     const offset = GAUGE_LENGTH - (score / 100) * GAUGE_LENGTH;
     gaugeBar.style.strokeDashoffset = offset;
 
-    // Glowing dynamic gradient transitions
+    // Crisp solid non-glowing semantic colors
     if (isWhitelistedState) {
-      gaugeBar.style.stroke = "url(#gauge-grad-trusted)";
+      gaugeBar.style.stroke = "var(--accent-blue)";
     } else if (score >= 70) {
-      gaugeBar.style.stroke = "url(#gauge-grad-danger)";
+      gaugeBar.style.stroke = "var(--color-danger)";
     } else if (score >= 40) {
-      gaugeBar.style.stroke = "url(#gauge-grad-warning)";
+      gaugeBar.style.stroke = "var(--color-warning)";
     } else {
-      gaugeBar.style.stroke = "url(#gauge-grad-safe)";
+      gaugeBar.style.stroke = "var(--color-safe)";
     }
   }
 

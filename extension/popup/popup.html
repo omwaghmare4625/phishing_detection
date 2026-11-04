@@ -8,6 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    try {
+      const cached = localStorage.getItem("phishguard_theme");
+      if (cached) document.documentElement.setAttribute("data-theme", cached);
+    } catch (_) {}
+  </script>
 </head>
 <body>
   <div class="popup-shell">
@@ -89,26 +95,7 @@
       <!-- Hero Section with Semicircular Risk Gauge -->
       <section class="glass-card hero-gauge-card">
         <div class="hero-gauge-wrapper">
-          <div class="hero-gauge-ambient-glow" id="hero-gauge-glow"></div>
           <svg class="semicircle-gauge" viewBox="0 0 200 115">
-            <defs>
-              <linearGradient id="gauge-grad-safe" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#10B981" />
-                <stop offset="100%" stop-color="#34D399" />
-              </linearGradient>
-              <linearGradient id="gauge-grad-warning" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#F59E0B" />
-                <stop offset="100%" stop-color="#FCD34D" />
-              </linearGradient>
-              <linearGradient id="gauge-grad-danger" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#EF4444" />
-                <stop offset="100%" stop-color="#F87171" />
-              </linearGradient>
-              <linearGradient id="gauge-grad-trusted" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#3B82F6" />
-                <stop offset="100%" stop-color="#60A5FA" />
-              </linearGradient>
-            </defs>
             <!-- Background Arc: Radius 80, Center (100, 100) -->
             <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" />
             <!-- Animated Value Arc: sweep from 0 to 100 -->
@@ -402,14 +389,19 @@
           </label>
         </div>
 
-        <div class="toggle-row">
+        <div class="toggle-row theme-toggle-row">
           <div class="toggle-info">
             <span class="toggle-title">Interface Theme</span>
-            <span class="toggle-desc">Toggle between Charcoal Dark and Solaris Light</span>
+            <span class="toggle-desc">Match extension color theme</span>
           </div>
-          <button class="secondary-btn compact-btn" id="theme-toggle-btn" title="Switch Theme">
-            <span id="theme-btn-label">Solaris Light</span>
-          </button>
+          <div class="segmented-theme-control" role="group" aria-label="Theme Selection">
+            <button type="button" class="theme-seg-btn active" id="theme-btn-charcoal" data-theme="charcoal">
+              <span>Dark</span>
+            </button>
+            <button type="button" class="theme-seg-btn" id="theme-btn-solaris" data-theme="solaris">
+              <span>Light</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -445,7 +437,7 @@
             type="text"
             id="api-base-input"
             class="glass-input"
-            placeholder="http://127.0.0.1:8000"
+            placeholder="http://127.0.0.1:8080"
             spellcheck="false"
           />
           <button id="save-api-base-btn" class="secondary-btn compact-btn">Save</button>
@@ -466,7 +458,7 @@
     <footer class="app-footer">
       <div class="status-chip-container" id="backend-status-chip">
         <span class="chip-dot"></span>
-        <span class="chip-text" id="backend-status">Backend connected · 127.0.0.1:8000</span>
+        <span class="chip-text" id="backend-status">Backend connected · 127.0.0.1:8080</span>
       </div>
     </footer>
 
